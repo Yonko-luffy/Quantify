@@ -1,0 +1,134 @@
+:root {
+  --bg: #121212;
+  --card: #1e1e1e;
+  --text: #e0e0e0;
+  --accent: #bb86fc;
+  --hover: #3700b3;
+  --border: #333;
+}
+[data-theme="light"] {
+  --bg: #ffffff;
+  --card: #f9f9f9;
+  --text: #000000;
+  --accent: #6200ee;
+  --hover: #3700b3;
+  --border: #ddd;
+}
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background-color 0.3s, color 0.3s;
+}
+.profile-card {
+  background: var(--card);
+  color: var(--text);
+  max-width: 400px;
+  margin: 4rem auto 0 auto;
+  border-radius: 18px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.22);
+  padding: 2.5rem 2rem 2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1.5px solid var(--border);
+  animation: fadeIn 0.7s;
+}
+.profile-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.7rem;
+  color: #fff;
+  font-weight: 700;
+  margin-bottom: 1.1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  border: 3px solid var(--bg);
+}
+.profile-username {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.2rem;
+  letter-spacing: 0.5px;
+}
+.profile-email {
+  font-size: 1.05rem;
+  color: var(--text);
+  margin-bottom: 1.1rem;
+}
+.profile-about {
+  font-size: 0.98rem;
+  color: var(--text);
+  background: rgba(255,255,255,0.02);
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  margin-bottom: 1.2rem;
+  width: 100%;
+  text-align: center;
+}
+.profile-divider {
+  border-top: 1.5px solid var(--border);
+  margin: 1.2rem 0 1.2rem 0;
+  opacity: 0.7;
+  width: 100%;
+}
+.profile-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  justify-content: center;
+  width: 100%;
+}
+.profile-back {
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  display: inline-block;
+  padding: 0.7rem 1.5rem;
+  border-radius: 25px;
+  font-weight: 500;
+  transition: background 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  text-align: center;
+}
+.profile-back:hover {
+  background: var(--hover);
+}
+.quiz-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1.8rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  text-align: center;
+  white-space: nowrap;
+  min-width: 120px;
+}
+.quiz-btn:hover {
+  background: var(--hover);
+}
+.refresh-btn {
+  background: transparent;
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
+  transition: background 0.2s, color 0.2s;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.refresh-btn:hover {
+  background: var(--accent);
+  color: #fff;
+}

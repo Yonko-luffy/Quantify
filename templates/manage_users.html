@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block head %}
+  <title>Manage Users - Admin Panel</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block body %}
+  <div class="admin-panel">
+    <h2>User Management</h2>
+    <a href="{{ url_for('admin_panel') }}" class="back-btn">← Back to Admin Panel</a>
+    
+    <div class="users-table">
+      <h3>All Registered Users</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- jinja for loop for users -->
+          {% for user in users %}  
+          <tr>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>
+              <span class="role-badge role-{{ user.role }}">{{ user.role.title() }}</span>
+            </td>
+            <td class="actions">
+              <div class="user-actions">
+                {% if user.id != current_user.id %}
+                <!-- Update User Role Form -->
+                <form class="user-action-row" style="display: flex; flex-direction: row; align-items: center; gap: 8px; margin: 0;" action="{{ url_for('edit_user', user_id=user.id) }}" method="post" onsubmit="return confirmRoleChange(this, '{{ user.username }}', '{{ user.role }}');">
+                  <select name="role" class="role-select">
+                    <option value="user" {% if user.role == 'user' %}selected{% endif %}>User</option>
+                    <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                  </select>
+                  <button type="submit" class="btn btn-primary btn-small">Update Role</button>
+                </form>
+                <form style="display: flex; flex-direction: row; align-items: center; margin: 0;" action="{{ url_for('delete_user', user_id=user.id) }}" method="post" onsubmit="return confirmDeleteUser('{{ user.username }}', {{ user.id }});">
+                  <button type="submit" class="btn btn-danger btn-small">Delete</button>
+                </form>
+                {% else %}
+                <span class="text-muted">(You)</span>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <script>
+    function confirmRoleChange(form, username, currentRole) {
+      var select = form.querySelector('select[name="role"]');
+      var newRole = select.value;
+      if (newRole !== currentRole) {
+        return confirm('Are you sure you want to change the role of user "' + username + '" from ' + currentRole + ' to ' + newRole + '?');
+      }
+      return true;
+    }
+    function confirmDeleteUser(username, userId) {
+      return confirm('Are you sure you want to delete user "' + username + '" (ID: ' + userId + ')? This action cannot be undone.');
+    }
+  </script>
+{% endblock %}

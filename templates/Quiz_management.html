@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block head %}
+  <title>Create Quiz - Admin Panel</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}"> 
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/error-success.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/quiz_create.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/quiz.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/utilities.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="admin-panel">
+    <h2>Quiz Management</h2>
+    <!-- Back to Admin Panel Link -->
+    <a href="{{ url_for('admin_panel') }}" class="back-btn">← Back to Admin Panel</a>
+
+    <!-- Quiz Creation Form -->
+    <div class="quiz-create-bar">
+      <form action="{{ url_for('create_quiz') }}" method="post" class="quiz-create-form" autocomplete="off">
+        <input type="text" name="quiz_name" placeholder="Create a new quiz..." required />
+        <button type="submit" class="btn" title="Create Quiz">Create</button>
+      </form>
+    </div>
+
+    <!-- All Quizzes Table -->
+    <div class="users-table">
+      <h3>All Quiz</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Quiz Name</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Quiz Rows -->
+          {% for quiz in quizzes %}
+          <tr>
+            <td>{{ quiz.id }}</td>
+            <td>{{ quiz.name }}</td>
+            <td>
+              <a href="#" class="btn btn-edit">Edit</a>
+              <form class="d-inline">
+                <button type="submit" class="btn btn-delete" onclick="return confirm('Are you sure you want to delete this quiz?');">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+</div>
+{% endblock %}

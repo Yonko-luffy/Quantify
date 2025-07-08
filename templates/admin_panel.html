@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block head %}
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/navbar.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/quiz.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/error-success.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/responsive.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/utilities.css') }}">
+{% endblock %}
+
+{% block body %}
+  <div class="admin-panel">
+    <h1>Admin Panel</h1>
+    <a href="{{ url_for('index') }}" class="back-btn">← Back to Home page</a>
+
+
+    <div class="admin-card">
+      <h2>Admin Dashboard</h2>
+      <p>Welcome to the admin panel. Manage your application from here.</p>
+      <div class="admin-tiles">
+        <a href="{{ url_for('manage_users') }}" class="admin-tile">
+          <span class="tile-icon">👤</span>
+          Manage Users
+        </a>
+        <a href="{{ url_for('quiz_management') }}" class="admin-tile">
+          <span class="tile-icon">📝</span>
+          Manage Quizzes
+        </a>
+        <div class="admin-tile" disabled>
+          <span class="tile-icon">📋</span>
+          View All Quizzes
+        </div>
+        <div class="admin-tile" disabled>
+          <span class="tile-icon">📊</span>
+          Quiz Statistics
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

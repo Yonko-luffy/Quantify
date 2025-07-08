@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">  <head>
+    <meta charset="UTF-8">
+    {% block head %} {% endblock %}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/themes.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+  </head>
+<body>
+  <div class="navbar">
+    <a href="{{ url_for('index') }}" class="logo-link">
+      <img src="{{ url_for('static', filename='images/quiz-logo-new.svg') }}" alt="Quiz Logo">
+    </a>
+
+    <div class="nav-right"><!-- Right side of the navbar -->
+      {% if current_user.is_authenticated %}
+      <!-- Profile Icon -->
+        <div class="profile-container">
+          <div class="profile-icon" onclick="toggleDropdown('profileDropdown')">
+            {{ current_user.username[0] | upper }}
+          </div>
+
+          <!-- Profile Dropdown -->
+          <div class="dropdown-menu" id="profileDropdown">
+            <p>Welcome, {{ current_user.username }}</p>
+            {% if current_user.role == 'admin' %}
+              <a href="{{ url_for('admin_panel') }}">Admin Panel</a> <!-- 'admin_panel' route-->
+            {% endif %}
+            <a href="{{ url_for('profile') }}">View Profile</a> <!-- 'profile' route-->
+            <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
+            <a href="{{ url_for('logout') }}">Logout</a> <!-- 'logout' route-->
+          </div>
+        </div>
+      {% else %}
+      <!-- Login/Register Link -->
+        <a href="{{ url_for('login') }}" class="login-link">Login / Register</a>
+      {% endif %}
+    </div>
+  </div>
+
+
+  <!-- this is only used for spacing in the layout so the the content doesnot come under the nav bar -->
+  <main class="page-content">
+    {% block body %} {% endblock %}
+  </main>
+
+  <!-- scripts-->
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</body>
+</html>

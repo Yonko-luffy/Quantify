@@ -1,0 +1,413 @@
+.user-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  flex-wrap: nowrap;
+}
+.user-actions form {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  flex-shrink: 0;
+}
+/* ========== ADMIN PANEL STYLES ========== */
+.admin-panel {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.admin-panel h1,
+.admin-panel h2,
+.admin-panel h3 {
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+
+/* ========== BACK BUTTON ========== */
+.back-btn {
+  display: inline-block;
+  margin-bottom: 20px;
+  padding: 8px 16px;
+  background-color: #10519b;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+  font-size: 14px;
+}
+
+.back-btn:hover {
+  background-color: #5a6268;
+}
+
+/* ========== ADMIN CARDS ========== */
+.admin-card,
+.quiz-management,
+.users-table {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  padding: 30px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.quiz-management {
+  text-align: center;
+}
+
+/* ========== BUTTON STYLES ========== */
+.admin-actions,
+.placeholder-actions {
+  margin-top: 30px;
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(74, 144, 226, 0.4);
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #5a6268;
+}
+
+.btn-info {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.btn-info:hover:not(:disabled) {
+  background-color: #138496;
+}
+
+.btn-success {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+  background-color: #218838;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.btn-warning:hover:not(:disabled) {
+  background-color: #e0a800;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-small {
+  padding: 8px 16px;
+  font-size: 13px;
+  min-width: 100px;
+  box-sizing: border-box;
+}
+
+/* ========== TABLE STYLES ========== */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.table th,
+.table td {
+  padding: 18px 20px;
+  text-align: left;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.table th:first-child,
+.table td:first-child {
+  padding-left: 30px;
+}
+
+.table th:last-child,
+.table td:last-child {
+  padding-right: 30px;
+}
+
+/* Column width distribution */
+.table th:nth-child(1), .table td:nth-child(1) { width: 15%; } /* Username */
+.table th:nth-child(2), .table td:nth-child(2) { width: 30%; } /* Email */
+.table th:nth-child(3), .table td:nth-child(3) { width: 12%; } /* Role */
+.table th:nth-child(4), .table td:nth-child(4) { width: auto; } /* Actions - takes remaining space */
+
+.table th {
+  background: var(--accent);
+  color: white;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+}
+
+.table tbody tr:hover {
+  background: rgba(74, 144, 226, 0.1);
+}
+
+.table tbody tr:hover td {
+  background: rgba(74, 144, 226, 0.1);
+}
+
+.table .actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* ========== ROLE MANAGEMENT ========== */
+.role-select {
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--text);
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  padding: 6px 8px;
+  font-size: 13px;
+  font-weight: 500;
+  min-width: 90px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.role-select:focus {
+  outline: none;
+  border-color: var(--hover);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+}
+
+.role-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.role-admin {
+  background-color: #dc3545;
+  color: white;
+}
+
+.role-editor {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.role-user {
+  background-color: #28a745;
+  color: white;
+}
+
+/* ========== ADMIN TILES ========== */
+.admin-tiles {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+.admin-tile {
+  background-color: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  padding: 2.5rem 2rem;
+  min-width: 220px;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 1.2rem;
+  font-weight: 600;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  cursor: pointer;
+}
+
+.admin-tile:hover {
+  border-color: var(--accent);
+  box-shadow: 0 8px 32px rgba(16,81,155,0.15);
+  color: var(--accent);
+  transform: translateY(-4px) scale(1.03);
+}
+
+.admin-tile .tile-icon {
+  font-size: 2.2rem;
+  margin-bottom: 1rem;
+  color: var(--accent);
+}
+
+/* Quiz dashboard tiles */
+.quiz-tiles {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+.quiz-tile {
+  background-color: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  padding: 2rem 1.5rem;
+  min-width: 180px;
+  min-height: 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: 500;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.quiz-tile:disabled,
+.quiz-tile[disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.quiz-tile:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  opacity: 1;
+  transform: translateY(-3px) scale(1.03);
+}
+
+/* ========== ADMIN FORM FIXES ========== */
+/* Fix form input visibility on gradient background */
+.admin-panel input[type="text"],
+.admin-panel input[type="email"], 
+.admin-panel input[type="password"],
+.admin-panel select,
+.admin-panel textarea {
+  background: rgba(255, 255, 255, 0.9) !important;
+  color: var(--text) !important;
+  border: 2px solid var(--border) !important;
+  border-radius: 12px !important;
+  padding: 0.75rem !important;
+  font-weight: 500 !important;
+}
+
+.admin-panel input[type="text"]:focus,
+.admin-panel input[type="email"]:focus,
+.admin-panel input[type="password"]:focus,
+.admin-panel select:focus,
+.admin-panel textarea:focus {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1) !important;
+  outline: none !important;
+}
+
+.admin-panel input::placeholder {
+  color: var(--text-light) !important;
+  opacity: 0.8 !important;
+}
+
+/* Form labels */
+.admin-panel label {
+  color: var(--text) !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.5rem !important;
+  display: block !important;
+}
+
+/* ========== RESPONSIVE DESIGN ========== */
+@media (max-width: 768px) {
+  .admin-panel {
+    padding: 10px;
+  }
+  
+  .admin-actions,
+  .placeholder-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .btn {
+    min-width: 200px;
+  }
+  
+  .table {
+    font-size: 12px;
+  }
+  
+  .table th,
+  .table td {
+    padding: 8px 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-card,
+  .quiz-management,
+  .users-table {
+    padding: 15px;
+  }
+  
+  .table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
