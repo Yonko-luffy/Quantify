@@ -122,9 +122,7 @@ def index():
 def signup():
     return render_template('register.html')
 
-# register route
-# This route handles user registration, including validation and password hashing
-# It checks for existing usernames and emails, and provides feedback on registration success or failure
+
 @app.route('/register', methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -146,6 +144,8 @@ def register():
         if password != confirm_password:
             return render_template("register.html", error="Passwords do not match!")
 
+        # the following 2 if's make sure that duplicate usernames and emails are not allowed
+        # throws error if the username or email already exists
         if Users.query.filter_by(username=username).first():
             return render_template("register.html", error="Username already taken!")
 
@@ -153,6 +153,8 @@ def register():
             return render_template("register.html", error="Email already registered!")
 
         try:
+            # hashes the password using PBKDF2 with SHA-256
+            # this makes sure that the user passwords are proteceted
             hashed_password = generate_password_hash(password, method="pbkdf2:sha256")
             new_user = Users(email=email, username=username, password=hashed_password, role='user')
             db.session.add(new_user)
