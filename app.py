@@ -1,10 +1,11 @@
-from flask import Flask, render_template, url_for, request, redirect
+from flask import Flask, render_template, url_for, request, redirect,flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+from livereload import Server
 import os
-import uuid
+from functools import wraps
 from dotenv import load_dotenv
 # from livereload import Server  # Temporarily commented out
 
@@ -28,6 +29,19 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+# ================================
+# Admin Required Decorator
+# This decorator checks if the current user is logged in and has an 'admin' role.
+# ================================
+def admin_required(f):
+    @wraps(f)
+    @login_required
+    def decorated_function(*args, **kwargs):
+        if not hasattr(current_user, 'role') or current_user.role != 'admin':
+            flash("Access denied: Admins only.", "danger")
+            return redirect(url_for('home'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 # ================================
 # User Model Only
@@ -209,10 +223,8 @@ def logout():
 # ================================
 # Ensure only users with 'admin' role can access this route
 @app.route('/admin')
-@login_required
+@admin_required
 def admin_panel():
-    if not hasattr(current_user, 'role') or current_user.role != 'admin':
-        return "Access denied: Admins only", 403
     return render_template('admin_panel.html')
 
 # ================================
@@ -220,11 +232,8 @@ def admin_panel():
 # ================================
 
 @app.route('/manage_users')
-@login_required
+@admin_required
 def manage_users():
-    if not hasattr(current_user, 'role') or current_user.role != 'admin':
-        return "Access denied: Admins only", 403
-    
     users = Users.query.all()
     users = Users.query.order_by(Users.id.asc()).all()
     return render_template('manage_users.html', users=users)
@@ -232,21 +241,16 @@ def manage_users():
 
 
 @app.route('/quiz_management')
-@login_required
+@admin_required
 def quiz_management():
-    if not hasattr(current_user, 'role') or current_user.role != 'admin':
-        return "Access denied: Admins only", 403
     quizzes = Quiz.query.all()
     return render_template('Quiz_management.html', quizzes=quizzes)
 
 
 # create_quiz route
 @app.route('/create_quiz', methods=["POST"])
-@login_required
+@admin_required
 def create_quiz():
-    if not hasattr(current_user, 'role') or current_user.role != 'admin':
-        return "Access denied: Admins only", 403
-
     quiz_name = request.form.get("quiz_name")
     if not quiz_name:
         return render_template("Quiz_management.html", error="Quiz name is required!")
@@ -270,11 +274,8 @@ def create_quiz():
 # ===============================
 
 @app.route('/edit_user/<int:user_id>', methods=["POST"])
-@login_required
+@admin_required
 def edit_user(user_id):
-    if not hasattr(current_user, 'role') or current_user.role != 'admin':
-        return "Access denied: Admins only", 403
-
     new_role = request.form.get("role")
     user = Users.query.get(user_id)
 
@@ -285,11 +286,8 @@ def edit_user(user_id):
     return "User not found", 404
 
 @app.route('/delete_user/<int:user_id>', methods=["POST"])
-@login_required
+@admin_required
 def delete_user(user_id):
-    if not hasattr(current_user, 'role') or current_user.role != 'admin':
-        return "Access denied: Admins only", 403
-
     user = Users.query.get(user_id)
     if user:
         db.session.delete(user)
@@ -317,12 +315,9 @@ with app.app_context():
     print("✅ Users table created.")
 
 # ================================
-# Run App
+# Run Appit
 # ================================
 if __name__ == "__main__":
-    # Temporarily commented out livereload server
-    # server = Server(app.wsgi_app)
-    # server.serve(open_url_delay=True, debug=True)
-    
-    # Using regular Flask loader
-    app.run(debug=True)
+    # Using livereload server for live reloading
+    server = Server(app.wsgi_app)
+    server.serve(open_url_delay=True, debug=True)
