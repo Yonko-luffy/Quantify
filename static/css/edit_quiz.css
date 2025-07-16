@@ -1,0 +1,113 @@
+/* Edit Quiz Page - Theme Accurate */
+.admin-panel {
+  max-width: 650px;
+  margin: 2.5em auto;
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: 0 2px 16px rgba(59,130,246,0.07);
+  padding: 2em 2em;
+  color: var(--text);
+}
+
+.admin-panel h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5em;
+  color: var(--text);
+}
+.admin-panel a.back-btn {
+  color: var(--accent);
+  text-decoration: underline;
+  font-size: 1rem;
+  margin-bottom: 1.5em;
+  display: inline-block;
+}
+
+.quiz-edit-form label,
+.question-add-form label {
+  font-weight: 500;
+  margin-bottom: 0.3em;
+  display: block;
+  color: var(--text);
+}
+.quiz-edit-form input[type="text"],
+.question-add-form input[type="text"],
+.question-add-form select {
+  width: 100%;
+  padding: 0.7em 1em;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  margin-bottom: 1em;
+  background: var(--glass);
+  color: var(--text);
+  font-size: 1rem;
+  transition: border 0.2s;
+}
+.question-add-form select {
+  width: auto;
+  display: inline-block;
+}
+.options-group {
+  display: flex;
+  gap: 0.5em;
+  margin-bottom: 1em;
+}
+.options-group input[type="text"] {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.btn {
+  width: 100%;
+  padding: 0.8em 0;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-top: 0.5em;
+  margin-bottom: 1em;
+  box-shadow: 0 2px 8px rgba(59,130,246,0.08);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn:hover {
+  background: var(--hover);
+}
+.success-message, .error-message {
+  margin-bottom: 1em;
+  padding: 0.7em 1em;
+  border-radius: 8px;
+  font-weight: 500;
+}
+.success-message {
+  background: rgba(59,130,246,0.08);
+  color: var(--accent);
+}
+.error-message {
+  background: rgba(229, 115, 115, 0.08);
+  color: #b91c1c;
+}
+.admin-panel h3 {
+  margin-top: 2em;
+  margin-bottom: 0.7em;
+  font-size: 1.2rem;
+  color: var(--text);
+}
+ul {
+  margin: 1.5em 0 0 0;
+  padding: 0 0 0 1.2em;
+}
+ul ul {
+  margin: 0.2em 0 0.5em 0;
+  padding-left: 1.5em;
+}
+@media (max-width: 600px) {
+  .admin-panel {
+    padding: 1em 0.5em;
+  }
+  .options-group {
+    flex-direction: column;
+    gap: 0.2em;
+  }
+}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>Edit Quiz</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/edit_quiz.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="admin-panel">
+  <h2>Edit Quiz: {{ quiz.name }}</h2>
+  <a href="{{ url_for('quiz_management') }}" class="back-btn">← Back to Quiz Management</a>
+
+  {% if error %}
+    <div class="error-message">{{ error }}</div>
+  {% endif %}
+  {% if success %}
+    <div class="success-message">{{ success }}</div>
+  {% endif %}
+
+  <!-- Edit Quiz Name -->
+  <form method="post" class="quiz-edit-form" style="margin-bottom:2em;">
+    <input type="hidden" name="action" value="update_name" />
+    <label for="quiz_name">Quiz Name:</label>
+    <input type="text" name="quiz_name" id="quiz_name" value="{{ quiz.name }}" required style="margin-bottom:1em;" />
+    <button type="submit" class="btn">Update Name</button>
+  </form>
+
+  <!-- Add Question -->
+  <form method="post" class="question-add-form">
+    <input type="hidden" name="action" value="add_question" />
+    <h3>Add Question</h3>
+    <input type="text" name="question_text" placeholder="Question text..." required style="margin-bottom:1em;" />
+    <div class="options-group">
+      {% for i in range(1,6) %}
+        <input type="text" name="option{{i}}" placeholder="Option {{i}}" {% if i <= 2 %}required{% endif %} />
+      {% endfor %}
+    </div>
+    <label for="answer_index">Correct Option (0-based):</label>
+    <select name="answer_index" id="answer_index" required>
+      {% for i in range(5) %}
+        <option value="{{i}}">Option {{i+1}}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn">Add Question</button>
+  </form>
+
+  <!-- List Questions -->
+  <h3>Questions</h3>
+  <ul>
+    {% for q in questions %}
+      <li>
+        <b>{{ q.question_text }}</b><br>
+        <ul>
+          {% for opt in q.options %}
+            <li{% if loop.index0 == q.answer_index %} style="font-weight:bold; color:var(--accent);"{% endif %}>{{ opt }}</li>
+          {% endfor %}
+        </ul>
+        <div style="margin-top:0.5em;">
+          <a href="{{ url_for('edit_question', question_id=q.id) }}" class="btn" style="width:auto;display:inline-block;">Edit</a>
+          <form action="{{ url_for('delete_question', question_id=q.id) }}" method="post" style="display:inline;">
+            <button type="submit" class="btn btn-delete" style="width:auto;" onclick="return confirm('Delete this question?');">Delete</button>
+          </form>
+        </div>
+      </li>
+    {% else %}
+      <li>No questions yet.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

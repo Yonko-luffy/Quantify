@@ -38,7 +38,7 @@ def handle_rate_limit(e):
     # You can pass a cooldown time if you want to display a timer (e.g., e.reset_at)
     return render_template("login.html", error="Too many login attempts. Try again later.", cooldown=cooldown), 429
 
-# Database Configuration - Using SQLite for development
+# Database Configuration - Using POSTGRESQL
 DATABASE_URL = os.environ.get('DATABASE_URL') 
 app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -285,8 +285,107 @@ def create_quiz():
     except Exception as e:
         db.session.rollback()
         return render_template("Quiz_management.html", error="Quiz creation failed. Please try again!")
-    
 
+# Edit quiz route (admin only)
+@app.route('/edit_quiz/<int:quiz_id>', methods=["GET", "POST"])
+@admin_required
+def edit_quiz(quiz_id):
+    quiz = Quiz.query.get_or_404(quiz_id)
+    error = None
+    success = None
+    if request.method == "POST":
+        action = request.form.get("action")
+        if action == "update_name":
+            new_name = request.form.get("quiz_name")
+            if new_name and new_name.strip():
+                quiz.name = new_name.strip()
+                db.session.commit()
+                return redirect(url_for("edit_quiz", quiz_id=quiz.id))
+        elif action == "add_question":
+            question_text = request.form.get("question_text")
+            # Normalize whitespace for each option
+            options_raw = [request.form.get(f"option{i}") for i in range(1, 6)]
+            options = []
+            for opt in options_raw:
+                if opt:
+                    # Remove leading/trailing whitespace and collapse internal spaces
+                    normalized = ' '.join(opt.split())
+                    if normalized:
+                        options.append(normalized)
+            answer_index = request.form.get("answer_index")
+            if question_text and len(options) >= 2 and len(options) <= 5 and answer_index is not None:
+                # Check for non-identical options (after normalization)
+                if len(set(options)) != len(options):
+                    error = "All options must be unique."
+                else:
+                    try:
+                        answer_index = int(answer_index)
+                        if answer_index < 0 or answer_index >= len(options):
+                            error = "Invalid answer index."
+                        else:
+                            new_q = Questions(quiz_id=quiz.id, question_text=question_text, options=options, answer_index=answer_index)
+                            db.session.add(new_q)
+                            db.session.commit()
+                            return redirect(url_for("edit_quiz", quiz_id=quiz.id))
+                    except Exception as e:
+                        db.session.rollback()
+                        error = "Failed to add question."
+            else:
+                error = "A question must have 2-5 options and a correct answer."
+    questions = Questions.query.filter_by(quiz_id=quiz.id).all()
+    return render_template("edit_quiz.html", quiz=quiz, questions=questions, error=error, success=success)
+
+# Delete quiz route (admin only)
+@app.route('/delete_quiz/<int:quiz_id>', methods=["POST"])
+@admin_required
+def delete_quiz(quiz_id):
+    quiz = Quiz.query.get(quiz_id)
+    if quiz:
+        db.session.delete(quiz)
+        db.session.commit()
+        return redirect(url_for("quiz_management"))
+    return "Quiz not found", 404
+
+
+# Edit a question (admin only)
+@app.route('/edit_question/<int:question_id>', methods=["GET", "POST"])
+@admin_required
+def edit_question(question_id):
+    question = Questions.query.get_or_404(question_id)
+    quiz = Quiz.query.get_or_404(question.quiz_id)
+    error = None
+    success = None
+    if request.method == "POST":
+        question_text = request.form.get("question_text")
+        options = [request.form.get(f"option{i}") for i in range(1, 6) if request.form.get(f"option{i}")]
+        answer_index = request.form.get("answer_index")
+        if question_text and len(options) >= 2 and len(options) <= 5 and answer_index is not None:
+            try:
+                answer_index = int(answer_index)
+                if answer_index < 0 or answer_index >= len(options):
+                    error = "Invalid answer index."
+                else:
+                    question.question_text = question_text
+                    question.options = options
+                    question.answer_index = answer_index
+                    db.session.commit()
+                    success = "Question updated."
+            except Exception as e:
+                db.session.rollback()
+                error = "Failed to update question."
+        else:
+            error = "A question must have 2-5 options and a correct answer."
+    return render_template("edit_question.html", question=question, quiz=quiz, error=error, success=success)
+
+# Delete a question (admin only)
+@app.route('/delete_question/<int:question_id>', methods=["POST"])
+@admin_required
+def delete_question(question_id):
+    question = Questions.query.get_or_404(question_id)
+    quiz_id = question.quiz_id
+    db.session.delete(question)
+    db.session.commit()
+    return redirect(url_for("edit_quiz", quiz_id=quiz_id))
 
 
 
