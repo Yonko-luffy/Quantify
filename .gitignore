@@ -1,3 +1,17 @@
+# Python cache and environment
+__pycache__/
+env/
+venv/
+
+# VS Code and PyCharm
+.vscode/
+.idea/
+
+# pytest cache
+.pytest_cache/
+
+# Flask instance folder
+instance/
 # Python
 __pycache__/
 *.py[cod]
