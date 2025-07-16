@@ -29,14 +29,17 @@ A modern, full-featured quiz application built with Flask, supporting user authe
    source env/bin/activate  # On Mac/Linux
    ```
 3. **Install dependencies:**
+   Install the required Python packages manually (if you don't have a requirements.txt):
    ```sh
-   pip install -r requirements.txt
+   pip install flask flask_sqlalchemy flask_login psycopg2-binary python-dotenv livereload
    ```
 4. **Set environment variables:**
    - Create a `.env` file in the root directory with:
      ```
-     DATABASE_URL=sqlite:///instance/db.sqlite
-     SECRET_KEY=your_secret_key
+     # PostgreSQL Database Configuration
+     # Note: Password with special characters needs URL encoding: @ becomes %40
+     DATABASE_URL=postgresql://postgres:Tani%409293Postgre@localhost:5432/flask_db
+     SECRET_KEY=supersecretkey
      ```
 5. **Run the app (with live reload):**
    ```sh
@@ -67,7 +70,6 @@ QuizApp/
 │   ├── manage_users.html
 │   ├── Quiz_management.html
 │   └── quiz_result.html
-├── requirements.txt
 └── README.md
 ```
 

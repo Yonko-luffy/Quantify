@@ -1,15 +1,15 @@
 /* ================================================
-   UNIFIED THEME SYSTEM - LIGHT & DARK MODES
+UNIFIED THEME SYSTEM - LIGHT & DARK MODES
    ================================================ */
-
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
-
-/* ================================================
+   
+   /* Import Google Fonts */
+   @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+   
+   /* ================================================
    LIGHT MODE (DEFAULT) - CSS VARIABLES
    ================================================ */
-:root {
-  /* Light mode gradient - smaller/more concentrated */
+   :root {
+     /* Light mode gradient - smaller/more concentrated */
   --bg: radial-gradient(circle at center, #B3DAFF 0%, #A3CFFF 35%, #E6F2FF 70%);
   --card: rgba(255, 255, 255, 0.2);
   --text: #2C3E50;
@@ -22,8 +22,8 @@
 }
 
 /* ================================================
-   DARK MODE - CSS VARIABLES
-   ================================================ */
+DARK MODE - CSS VARIABLES
+================================================ */
 body.dark {
   /* Dark mode gradient - smaller/more concentrated */
   --bg: radial-gradient(circle at center, #1E2F50 0%, #111D35 35%, #0A0F1C 70%);
@@ -39,8 +39,8 @@ body.dark {
 }
 
 /* ================================================
-   BASE STYLES
-   ================================================ */
+BASE STYLES
+================================================ */
 * {
   margin: 0;
   padding: 0;
@@ -66,9 +66,9 @@ body::before {
   width: 100%;
   height: 100%;
   background: 
-    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+  radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+  radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+  radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
   pointer-events: none;
   z-index: -1;
 }
@@ -79,8 +79,8 @@ body.dark::before {
 }
 
 /* ================================================
-   NAVBAR STYLES
-   ================================================ */
+NAVBAR STYLES
+================================================ */
 .navbar {
   height: 72px;
   padding: 1rem 2rem;
@@ -158,8 +158,8 @@ body.dark .login-link {
 }
 
 /* ================================================
-   PROFILE DROPDOWN STYLES
-   ================================================ */
+PROFILE DROPDOWN STYLES
+================================================ */
 .profile-container {
   position: relative;
 }
@@ -212,8 +212,8 @@ body.dark .dropdown-menu {
   background: var(--card);
   border: 1px solid var(--border);
   box-shadow: 
-    0 8px 24px rgba(0, 0, 0, 0.2),
-    0 0 18px rgba(59, 130, 246, 0.08);
+  0 8px 24px rgba(0, 0, 0, 0.2),
+  0 0 18px rgba(59, 130, 246, 0.08);
 }
 
 .dropdown-menu p {
@@ -252,8 +252,8 @@ body.dark .dropdown-menu a:hover {
 }
 
 /* ================================================
-   THEME TOGGLE BUTTON
-   ================================================ */
+THEME TOGGLE BUTTON
+================================================ */
 .theme-toggle {
   display: block;
   padding: 0.75rem 1rem;
@@ -280,8 +280,8 @@ body.dark .theme-toggle:hover {
 }
 
 /* ================================================
-   QUIZ LAYOUT AND CARD STYLES
-   ================================================ */
+QUIZ LAYOUT AND CARD STYLES
+================================================ */
 .index-main {
   padding: 1rem 0;
 }
@@ -325,15 +325,15 @@ body.dark .quiz-title {
 }
 
 /* ================================================
-   QUIZ CARDS
-   ================================================ */
+QUIZ CARDS
+================================================ */
 .quiz-card {
   background: var(--card);
   border-radius: 25px;
   padding: 2rem;
   box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  0 8px 32px rgba(0, 0, 0, 0.1),
+  inset 0 1px 0 rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(20px);
   border: 1px solid var(--border);
   transition: all 0.4s ease;
@@ -346,8 +346,8 @@ body.dark .quiz-card {
   background: var(--card);
   border: 1px solid var(--border);
   box-shadow: 
-    0 8px 24px rgba(0, 0, 0, 0.2),
-    0 0 18px rgba(59, 130, 246, 0.08);
+  0 8px 24px rgba(0, 0, 0, 0.2),
+  0 0 18px rgba(59, 130, 246, 0.08);
 }
 
 .quiz-card::before {
@@ -368,14 +368,14 @@ body.dark .quiz-card {
 .quiz-card:hover {
   transform: translateY(-8px);
   box-shadow: 
-    0 20px 40px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  0 20px 40px rgba(0, 0, 0, 0.15),
+  inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 body.dark .quiz-card:hover {
   box-shadow: 
-    0 20px 40px rgba(0, 0, 0, 0.3),
-    0 0 25px rgba(59, 130, 246, 0.12);
+  0 20px 40px rgba(0, 0, 0, 0.3),
+  0 0 25px rgba(59, 130, 246, 0.12);
 }
 
 .quiz-card h3 {
@@ -414,8 +414,8 @@ body.dark .quiz-info {
 }
 
 /* ================================================
-   QUIZ BUTTONS
-   ================================================ */
+QUIZ BUTTONS
+================================================ */
 .quiz-btn {
   background: linear-gradient(135deg, var(--accent) 0%, var(--hover) 100%);
   color: white;
@@ -452,8 +452,8 @@ body.dark .quiz-btn:hover {
 }
 
 /* ================================================
-   ADMIN PANEL DARK MODE STYLES
-   ================================================ */
+ADMIN PANEL DARK MODE STYLES
+================================================ */
 
 /* Admin panel containers */
 body.dark .admin-panel {
@@ -473,8 +473,8 @@ body.dark .users-table {
   background: var(--card);
   border: 1px solid var(--border);
   box-shadow: 
-    0 8px 24px rgba(0, 0, 0, 0.2),
-    0 0 18px rgba(59, 130, 246, 0.08);
+  0 8px 24px rgba(0, 0, 0, 0.2),
+  0 0 18px rgba(59, 130, 246, 0.08);
 }
 
 /* Back button */
@@ -492,8 +492,8 @@ body.dark .back-btn:hover {
 body.dark .table {
   background: var(--card);
   box-shadow: 
-    0 8px 24px rgba(0, 0, 0, 0.2),
-    0 0 18px rgba(59, 130, 246, 0.08);
+  0 8px 24px rgba(0, 0, 0, 0.2),
+  0 0 18px rgba(59, 130, 246, 0.08);
 }
 
 body.dark .table th,
@@ -554,8 +554,8 @@ body.dark .quiz-tile {
   border: 2px solid var(--border);
   color: var(--text);
   box-shadow: 
-    0 8px 24px rgba(0, 0, 0, 0.2),
-    0 0 18px rgba(59, 130, 246, 0.08);
+  0 8px 24px rgba(0, 0, 0, 0.2),
+  0 0 18px rgba(59, 130, 246, 0.08);
 }
 
 body.dark .admin-tile:hover,
@@ -563,8 +563,8 @@ body.dark .quiz-tile:hover {
   border-color: var(--accent);
   color: var(--accent);
   box-shadow: 
-    0 12px 32px rgba(0, 0, 0, 0.3),
-    0 0 25px rgba(59, 130, 246, 0.12);
+  0 12px 32px rgba(0, 0, 0, 0.3),
+  0 0 25px rgba(59, 130, 246, 0.12);
 }
 
 body.dark .admin-tile .tile-icon {
@@ -604,16 +604,16 @@ body.dark .role-user {
 }
 
 /* ================================================
-   AUTH PAGES DARK MODE STYLES
-   ================================================ */
+AUTH PAGES DARK MODE STYLES
+================================================ */
 
 /* Auth container */
 body.dark .auth-container {
   background: var(--card);
   border: 1px solid var(--border);
   box-shadow: 
-    0 8px 24px rgba(0, 0, 0, 0.2),
-    0 0 18px rgba(59, 130, 246, 0.08);
+  0 8px 24px rgba(0, 0, 0, 0.2),
+  0 0 18px rgba(59, 130, 246, 0.08);
 }
 
 body.dark .auth-container h2 {
@@ -671,8 +671,8 @@ body.dark .form-label {
 }
 
 /* ================================================
-   ERROR/SUCCESS MESSAGE DARK MODE STYLES
-   ================================================ */
+ERROR/SUCCESS MESSAGE DARK MODE STYLES
+================================================ */
 
 body.dark .alert {
   border-radius: 12px;
@@ -702,4 +702,22 @@ body.dark .alert-info {
   background-color: rgba(59, 130, 246, 0.1);
   color: var(--accent);
   border-color: var(--border);
+}
+
+/* Cooldown message styling */
+.cooldown-message {
+  color: #fff;
+  background: #e57373;
+  border-radius: 6px;
+  padding: 0.7em 1em;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(229, 115, 115, 0.08);
+  letter-spacing: 0.02em;
+  transition: background 0.3s;
+}
+body.dark .cooldown-message {
+  background: #b91c1c;
+  color: #fff;
 }

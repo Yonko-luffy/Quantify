@@ -4,6 +4,10 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 from livereload import Server
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_limiter.errors import RateLimitExceeded
+from flask import jsonify
 import os
 from functools import wraps
 from dotenv import load_dotenv
@@ -17,6 +21,22 @@ load_dotenv()
 # ================================
 app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
+
+# Limiter setup
+# Temporary just for testing will swap with redis later
+limiter = Limiter(
+    key_func=get_remote_address,  # limits based on IP address
+    app=app,
+    default_limits=[]  # no global limits
+)
+
+# Custom error response
+@app.errorhandler(RateLimitExceeded)
+def handle_rate_limit(e):
+    # Render the login page with a special error and a cooldown flag
+    cooldown = True
+    # You can pass a cooldown time if you want to display a timer (e.g., e.reset_at)
+    return render_template("login.html", error="Too many login attempts. Try again later.", cooldown=cooldown), 429
 
 # Database Configuration - Using SQLite for development
 DATABASE_URL = os.environ.get('DATABASE_URL') 
@@ -185,6 +205,7 @@ def register():
 # login route
 # This route handles user login, including password verification and session management
 @app.route('/login', methods=["GET", "POST"])
+@limiter.limit("5 per minute,10 per 10 minute,20 per hour")  # Limit login attempts to prevent brute force attacks
 def login():
     success_msg = request.args.get('success')
     
