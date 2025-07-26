@@ -11,6 +11,7 @@ from flask import jsonify
 import os
 from functools import wraps
 from dotenv import load_dotenv
+from test_data import TEST_USERS
 # from livereload import Server  # Temporarily commented out
 
 # Load environment variables
@@ -97,7 +98,7 @@ class Questions(db.Model):
     answer_index = db.Column(db.Integer, nullable=False)  # Index of the correct answer in options
 
     # Relationship to Quizzes
-    quiz = db.relationship('Quiz', backref=db.backref('questions', lazy=True))
+    quiz = db.relationship('Quiz', backref=db.backref('questions', lazy=True, cascade="all, delete-orphan"))
 
 # quiz results model
 # This model stores the results of each quiz attempt by a user
@@ -281,7 +282,7 @@ def create_quiz():
         new_quiz = Quiz(name=quiz_name, difficulty="easy", created_by=current_user.id)
         db.session.add(new_quiz)
         db.session.commit()
-        return redirect(url_for("create_quiz", success="Quiz created successfully!"))
+        return redirect(url_for("edit_quiz", quiz_id=new_quiz.id))
     except Exception as e:
         db.session.rollback()
         return render_template("Quiz_management.html", error="Quiz creation failed. Please try again!")
@@ -376,6 +377,71 @@ def edit_question(question_id):
         else:
             error = "A question must have 2-5 options and a correct answer."
     return render_template("edit_question.html", question=question, quiz=quiz, error=error, success=success)
+
+# Update a question inline Form submission with template rendering
+@app.route('/update_question_inline/<int:question_id>', methods=["POST"])
+@admin_required
+def update_question_inline(question_id):
+    question = Questions.query.get_or_404(question_id)
+    quiz = Quiz.query.get_or_404(question.quiz_id)
+    
+    try:
+        # Handle form submission
+        question_text = request.form.get("question_text", "").strip()
+        options = []
+        
+        # Collect dynamic options from form
+        i = 0
+        while True:
+            option = request.form.get(f"option_{i}", "")
+            if option and option.strip():
+                options.append(option.strip())
+            i += 1
+            if i > 10:  # Safety limit
+                break
+        
+        answer_index = request.form.get("answer_index")
+        if answer_index is not None:
+            try:
+                answer_index = int(answer_index)
+            except:
+                answer_index = None
+        
+        # Validation with template rendering
+        questions = Questions.query.filter_by(quiz_id=quiz.id).all()
+        
+        if not question_text:
+            return render_template("edit_quiz.html", quiz=quiz, questions=questions, error="Question text is required.")
+        
+        if len(options) < 2:
+            return render_template("edit_quiz.html", quiz=quiz, questions=questions, error="At least 2 options are required.")
+        
+        if len(options) > 5:
+            return render_template("edit_quiz.html", quiz=quiz, questions=questions, error="Maximum 5 options allowed.")
+        
+        # Check for duplicate options
+        if len(set(options)) != len(options):
+            return render_template("edit_quiz.html", quiz=quiz, questions=questions, error="All options must be unique.")
+        
+        if answer_index is None or answer_index < 0 or answer_index >= len(options):
+            return render_template("edit_quiz.html", quiz=quiz, questions=questions, error="Invalid correct answer selection.")
+        
+        # Update the question
+        question.question_text = question_text
+        question.options = options
+        question.answer_index = answer_index
+        db.session.commit()
+        
+        # Success response with template rendering
+        success_msg = "Question updated successfully."
+        questions = Questions.query.filter_by(quiz_id=quiz.id).all()
+        return render_template("edit_quiz.html", quiz=quiz, questions=questions, success=success_msg)
+    
+    except Exception as e:
+        db.session.rollback()
+        error_msg = "Failed to update question."
+        questions = Questions.query.filter_by(quiz_id=quiz.id).all()
+        return render_template("edit_quiz.html", quiz=quiz, questions=questions, error=error_msg)
 
 # Delete a question (admin only)
 @app.route('/delete_question/<int:question_id>', methods=["POST"])

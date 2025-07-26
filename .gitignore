@@ -44,3 +44,7 @@ Thumbs.db
 
 # Livereload
 livereload.log
+
+
+# test data
+test_data.py
