@@ -11,7 +11,6 @@ from flask import jsonify
 import os
 from functools import wraps
 from dotenv import load_dotenv
-from test_data import TEST_USERS
 # from livereload import Server  # Temporarily commented out
 
 # Load environment variables
@@ -262,11 +261,11 @@ def manage_users():
 
 
 
-@app.route('/quiz_management')
+@app.route('/manage_quizzes')
 @admin_required
-def quiz_management():
+def manage_quizzes():
     quizzes = Quiz.query.all()
-    return render_template('Quiz_management.html', quizzes=quizzes)
+    return render_template('manage_quizzes.html', quizzes=quizzes)
 
 
 # create_quiz route
@@ -274,10 +273,17 @@ def quiz_management():
 @admin_required
 def create_quiz():
     quiz_name = request.form.get("quiz_name")
+    quizzes = Quiz.query.all()  # Get quizzes for all error cases
+    
     if not quiz_name:
-        return render_template("Quiz_management.html", error="Quiz name is required!")
+        return render_template("manage_quizzes.html", quizzes=quizzes, error="Quiz name is required!")
+    
     if len(quiz_name) < 3:
-        return render_template("Quiz_management.html", error="Quiz name must be at least 3 characters long!")
+        return render_template("manage_quizzes.html", quizzes=quizzes, error="Quiz name must be at least 3 characters long!")
+    
+    if Quiz.query.filter_by(name=quiz_name).first():
+        return render_template("manage_quizzes.html", quizzes=quizzes, error="Quiz with this name already exists!")
+    
     try:
         new_quiz = Quiz(name=quiz_name, difficulty="easy", created_by=current_user.id)
         db.session.add(new_quiz)
@@ -285,7 +291,7 @@ def create_quiz():
         return redirect(url_for("edit_quiz", quiz_id=new_quiz.id))
     except Exception as e:
         db.session.rollback()
-        return render_template("Quiz_management.html", error="Quiz creation failed. Please try again!")
+        return render_template("manage_quizzes.html", quizzes=quizzes, error="Quiz creation failed. Please try again!")
 
 # Edit quiz route (admin only)
 @app.route('/edit_quiz/<int:quiz_id>', methods=["GET", "POST"])
@@ -344,7 +350,7 @@ def delete_quiz(quiz_id):
     if quiz:
         db.session.delete(quiz)
         db.session.commit()
-        return redirect(url_for("quiz_management"))
+        return redirect(url_for("manage_quizzes"))
     return "Quiz not found", 404
 
 
