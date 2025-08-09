@@ -14,11 +14,11 @@
         {% endif %}
         <div style="text-align: center; max-width: 600px; margin: 0 auto;">
             {% if current_user.is_authenticated %}
-                <a href="{{ url_for('profile') }}" class="quiz-btn">Go to your Profile</a>
+                <a href="{{ url_for('auth.profile') }}" class="quiz-btn">Go to your Profile</a>
             {% else %}
                 <div style="display: flex; gap: 1rem; justify-content: center;">
-                    <a href="{{ url_for('login') }}" class="quiz-btn">Login</a>
-                    <a href="{{ url_for('signup') }}" class="quiz-btn" style="background-color: #666;">Register</a>
+                    <a href="{{ url_for('auth.login') }}" class="quiz-btn">Login</a>
+                    <a href="{{ url_for('auth.signup') }}" class="quiz-btn" style="background-color: #666;">Register</a>
                 </div>
             {% endif %}
         </div>
@@ -31,7 +31,7 @@
                 <div class="quiz-card">
                     <h3>{{ quiz.name }}</h3>
                     <p class="quiz-info">{{ quiz.questions|length }} Questions | {{ quiz.difficulty }}</p>
-                    <a class="quiz-btn" href="{{ url_for('quiz', quiz_id=quiz.id) }}">Start Quiz</a>
+                    <a class="quiz-btn" href="{{ url_for('quiz.quiz_detail', quiz_id=quiz.id) }}">Start Quiz</a>
                 </div>
             {% endfor %}
         </div>

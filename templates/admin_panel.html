@@ -15,18 +15,18 @@
 {% block body %}
   <div class="admin-panel">
     <h1>Admin Panel</h1>
-    <a href="{{ url_for('index') }}" class="back-btn">← Back to Home page</a>
+    <a href="{{ url_for('quiz.index') }}" class="back-btn">← Back to Home page</a>
 
 
     <div class="admin-card">
       <h2>Admin Dashboard</h2>
       <p>Welcome to the admin panel. Manage your application from here.</p>
       <div class="admin-tiles">
-        <a href="{{ url_for('manage_users') }}" class="admin-tile">
+        <a href="{{ url_for('admin.manage_users') }}" class="admin-tile">
           <span class="tile-icon">👤</span>
           Manage Users
         </a>
-        <a href="{{ url_for('manage_quizzes') }}" class="admin-tile">
+        <a href="{{ url_for('admin.manage_quizzes') }}" class="admin-tile">
           <span class="tile-icon">📝</span>
           Manage Quizzes
         </a>

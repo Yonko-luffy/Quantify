@@ -8,7 +8,7 @@
   </head>
 <body>
   <div class="navbar">
-    <a href="{{ url_for('index') }}" class="logo-link">
+    <a href="{{ url_for('quiz.index') }}" class="logo-link">
       <img src="{{ url_for('static', filename='images/quiz-logo-new.svg') }}" alt="Quiz Logo">
     </a>
 
@@ -24,16 +24,16 @@
           <div class="dropdown-menu" id="profileDropdown">
             <p>Welcome, {{ current_user.username }}</p>
             {% if current_user.role == 'admin' %}
-              <a href="{{ url_for('admin_panel') }}">Admin Panel</a> <!-- 'admin_panel' route-->
+              <a href="{{ url_for('admin.admin_panel') }}">Admin Panel</a> <!-- 'admin_panel' route-->
             {% endif %}
-            <a href="{{ url_for('profile') }}">View Profile</a> <!-- 'profile' route-->
+            <a href="{{ url_for('auth.profile') }}">View Profile</a> <!-- 'profile' route-->
             <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
-            <a href="{{ url_for('logout') }}">Logout</a> <!-- 'logout' route-->
+            <a href="{{ url_for('auth.logout') }}">Logout</a> <!-- 'logout' route-->
           </div>
         </div>
       {% else %}
       <!-- Login/Register Link -->
-        <a href="{{ url_for('login') }}" class="login-link">Login / Register</a>
+        <a href="{{ url_for('auth.login') }}" class="login-link">Login / Register</a>
       {% endif %}
     </div>
   </div>

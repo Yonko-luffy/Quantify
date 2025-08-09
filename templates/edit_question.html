@@ -8,7 +8,7 @@
 {% block body %}
 <div class="admin-panel">
   <h2>Edit Question for Quiz: {{ quiz.name }}</h2>
-  <a href="{{ url_for('edit_quiz', quiz_id=quiz.id) }}" class="back-btn">← Back to Quiz</a>
+  <a href="{{ url_for('admin.edit_quiz', quiz_id=quiz.id) }}" class="back-btn">← Back to Quiz</a>
 
   {% if error %}
     <div class="error-message">{{ error }}</div>

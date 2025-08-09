@@ -20,12 +20,12 @@
     {% endif %}
   </div>
   <div class="profile-divider"></div>
-  <a href="{{ url_for('index') }}" class="profile-back">← Back to Home page</a>
+  <a href="{{ url_for('quiz.index') }}" class="profile-back">← Back to Home page</a>
   <div class="profile-actions">
-    <form action="{{ url_for('logout') }}" method="post">
+    <form action="{{ url_for('auth.logout') }}" method="post">
       <button type="submit" class="quiz-btn">Log out</button>
     </form>
-    <a href="{{ url_for('profile') }}" class="quiz-btn refresh-btn">Refresh</a>
+    <a href="{{ url_for('auth.profile') }}" class="quiz-btn refresh-btn">Refresh</a>
   </div>
 </div>
 {% endblock %}

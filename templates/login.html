@@ -34,7 +34,7 @@
     <button type="submit" class="btn" id="loginBtn" {% if cooldown %}disabled{% endif %}>Log In</button>
   </form>
 
-  <a href="{{ url_for('signup') }}" class="btn secondary-btn">Register</a>
+  <a href="{{ url_for('auth.signup') }}" class="btn secondary-btn">Register</a>
 </div>
 
 {% endblock %}

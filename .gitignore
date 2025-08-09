@@ -34,6 +34,7 @@ instance/
 
 # Environment variables
 .env
+.env.template
 
 # OS
 .DS_Store
@@ -48,3 +49,8 @@ livereload.log
 
 # test data
 test_data.py
+app_new.py
+MIGRATION_REPORT.md
+MIGRATION_SUCCESS.md
+MODULAR_STRUCTURE.md
+requirements.txt

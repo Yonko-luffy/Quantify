@@ -8,7 +8,7 @@
 {% block body %}
 <div class="admin-panel">
   <h2>Edit Quiz: {{ quiz.name }}</h2>
-  <a href="{{ url_for('manage_quizzes') }}" class="back-btn">← Back to Quiz Management</a>
+  <a href="{{ url_for('admin.manage_quizzes') }}" class="back-btn">← Back to Quiz Management</a>
 
   <div class="edit-quiz-container">
     {% if error %}
@@ -54,7 +54,7 @@
       <h3>Questions</h3>
       {% for q in questions %}
         <div class="question-inline" data-question-id="{{ q.id }}">
-          <form action="{{ url_for('update_question_inline', question_id=q.id) }}" method="post" class="question-form">
+          <form action="{{ url_for('admin.update_question_inline', question_id=q.id) }}" method="post" class="question-form">
             <input type="text" class="question-text-edit" name="question_text" value="{{ q.question_text }}" readonly>
             <div class="inline-options" data-option-count="{{ q.options|length }}">
               {% for opt in q.options %}
