@@ -8,24 +8,38 @@
 {% block body %}
 <div class="profile-card animate-fadeIn">
   <div class="profile-avatar">
-    {{ current_user.username[0]|upper if current_user else 'U' }}
+    {{ profile_owner.username[0]|upper if profile_owner else 'U' }}
   </div>
-  <div class="profile-username">{{ current_user.username if current_user else 'Username' }}</div>
-  <div class="profile-email">{{ current_user.email if current_user else 'user@email.com' }}</div>
+  <div class="profile-username">{{ profile_owner.username if profile_owner else 'Username' }}</div>
+  {% if current_user.is_authenticated and current_user.username == profile_owner.username %}
+    <div class="profile-email">{{ profile_owner.email if profile_owner else 'user@email.com' }}</div>
+  {% endif %}
   <div class="profile-about">
-    {% if current_user and current_user.created_at %}
-      Member since {{ current_user.created_at.strftime('%B %Y') }}
+    {% if profile_owner %}
+      {% if current_user.is_authenticated and current_user.username == profile_owner.username %}
+        Welcome to your profile! Update your info to personalize your experience.
+      {% else %}
+        {{ profile_owner.username }}'s Profile
+      {% endif %}
     {% else %}
-      Welcome to QuizApp! Update your profile to add more info.
+      Welcome to QuizApp!
     {% endif %}
   </div>
   <div class="profile-divider"></div>
   <a href="{{ url_for('quiz.index') }}" class="profile-back">← Back to Home page</a>
   <div class="profile-actions">
-    <form action="{{ url_for('auth.logout') }}" method="post">
-      <button type="submit" class="quiz-btn">Log out</button>
-    </form>
-    <a href="{{ url_for('auth.profile') }}" class="quiz-btn refresh-btn">Refresh</a>
+    {% if current_user.is_authenticated %}
+      {% if current_user.username == profile_owner.username %}
+        <form action="{{ url_for('auth.logout') }}" method="post">
+          <button type="submit" class="quiz-btn">Log out</button>
+        </form>
+        <a href="{{ url_for('auth.profile_user', username=current_user.username) }}" class="quiz-btn refresh-btn">Refresh</a>
+      {% else %}
+        <a href="{{ url_for('auth.profile_user', username=current_user.username) }}" class="quiz-btn">My Profile</a>
+      {% endif %}
+    {% else %}
+      <a href="{{ url_for('auth.login') }}" class="quiz-btn">Login to see your profile</a>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

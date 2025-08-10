@@ -87,11 +87,22 @@ def login():
     return render_template("login.html", success=success_msg)
 
 
-@auth_bp.route("/profile")
-@login_required
-def profile():
-    """Display user profile"""
-    return render_template("profile.html", user=current_user)
+# @auth_bp.route("/profile")
+# @login_required
+# def profile():
+#     """Redirect to current user's profile"""
+#     return redirect(url_for("auth.profile_user", username=current_user.username))
+
+
+@auth_bp.route("/profile/<username>")
+def profile_user(username):
+    # Check if the requested user exists
+    user = Users.query.filter_by(username=username).first()
+    if not user:
+        flash("User not found!", "error")
+        return redirect(url_for("quiz.index"))
+    
+    return render_template("profile.html", user=user, profile_owner=user)
 
 
 @auth_bp.route('/logout', methods=["GET", "POST"])

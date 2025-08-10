@@ -29,7 +29,6 @@ ENV/
 
 # Databases
 instance/
-*.sqlite3
 *.db
 
 # Environment variables
@@ -54,3 +53,8 @@ MIGRATION_REPORT.md
 MIGRATION_SUCCESS.md
 MODULAR_STRUCTURE.md
 requirements.txt
+
+# Documentation files (excluded from version control)
+COMPLETE_GUIDE.md
+PROJECT_CONTEXT.md
+PROJECT_DOCUMENTATION.md

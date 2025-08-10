@@ -20,7 +20,7 @@ def admin_panel():
 # User Management Routes
 # ================================
 
-@admin_bp.route('/users')
+@admin_bp.route('/manage_users')
 @admin_required
 def manage_users():
     """Display all users for management"""
@@ -28,7 +28,7 @@ def manage_users():
     return render_template('manage_users.html', users=users)
 
 
-@admin_bp.route('/users/<int:user_id>/edit', methods=["POST"])
+@admin_bp.route('/manage_users/<int:user_id>/edit', methods=["POST"])
 @admin_required
 def edit_user(user_id):
     """Edit user role"""
@@ -45,7 +45,7 @@ def edit_user(user_id):
     return redirect(url_for("admin.manage_users"))
 
 
-@admin_bp.route('/users/<int:user_id>/delete', methods=["POST"])
+@admin_bp.route('/manage_users/<int:user_id>/delete', methods=["POST"])
 @admin_required
 def delete_user(user_id):
     """Delete a user"""
