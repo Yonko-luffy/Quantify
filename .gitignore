@@ -33,7 +33,6 @@ instance/
 
 # Environment variables
 .env
-.env.template
 
 # OS
 .DS_Store
@@ -49,16 +48,12 @@ livereload.log
 # test data
 test_data.py
 app_new.py
-MIGRATION_REPORT.md
-MIGRATION_SUCCESS.md
-MODULAR_STRUCTURE.md
-requirements.txt
 
-# Documentation files (excluded from version control)
-COMPLETE_GUIDE.md
-PROJECT_CONTEXT.md
-PROJECT_DOCUMENTATION.md
-QUIZ_VALIDATION_SYSTEM.md
+# Documentation folder (excluded from version control)
+docs/
+
+# Temporary files and scripts
+temp/
 
 #future things
 favicon.svg
