@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>{{ quiz.name }} - Results</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/quiz.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/quiz-results.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="index-main">
+    <div class="results-container">
+    <!-- Results Header -->
+    <div class="results-header">
+        <h1>{{ quiz.name }} - Results</h1>
+        <div class="score-display">{{ stats.correct_answers }}/{{ stats.total_questions }}</div>
+        <div class="score-percentage">{{ "%.1f"|format(stats.accuracy) }}% Accuracy</div>
+        <div class="completion-message">
+            {% if stats.accuracy >= 90 %}
+                🎉 Excellent work!
+                <div class="performance-badge badge-excellent">Outstanding Performance</div>
+            {% elif stats.accuracy >= 70 %}
+                👏 Well done!
+                <div class="performance-badge badge-good">Good Job</div>
+            {% else %}
+                📚 Keep studying!
+                <div class="performance-badge badge-needs-improvement">Room for Improvement</div>
+            {% endif %}
+        </div>
+        {% if progress and progress.completed_at %}
+            <p>Completed on {{ progress.completed_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+        {% endif %}
+    </div>
+
+    <!-- Statistics Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number correct-stat">{{ stats.correct_answers }}</div>
+            <div class="stat-label">Correct Answers</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number incorrect-stat">{{ stats.incorrect_answers }}</div>
+            <div class="stat-label">Incorrect Answers</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number accuracy-stat">{{ "%.1f"|format(stats.accuracy) }}%</div>
+            <div class="stat-label">Accuracy Rate</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ stats.total_questions }}</div>
+            <div class="stat-label">Total Questions</div>
+        </div>
+    </div>
+
+    <!-- Question by Question Review -->
+    {% if results %}
+    <div class="questions-review">
+        <h2 class="section-title">📝 Question by Question Review</h2>
+        
+        {% for result, question in results %}
+            <div class="question-item {{ 'question-correct' if result.is_correct else 'question-incorrect' }}">
+                <div class="question-header">
+                    <span class="question-number">Question {{ loop.index }}</span>
+                    <span class="question-result-icon">
+                        {{ '✅' if result.is_correct else '❌' }}
+                    </span>
+                </div>
+                
+                <div class="question-text">{{ question.question_text }}</div>
+                
+                <div class="answer-options">
+                    {% for option in question.options %}
+                        <div class="answer-option 
+                            {% if loop.index0 == result.selected_index %}
+                                your-answer {{ 'your-answer-correct' if result.is_correct else 'your-answer-incorrect' }}
+                            {% elif loop.index0 == question.answer_index and not result.is_correct %}
+                                correct-answer-highlight
+                            {% endif %}">
+                            
+                            {% if loop.index0 == result.selected_index %}
+                                <strong>Your Answer:</strong> {{ option }}
+                                {{ '✅' if result.is_correct else '❌' }}
+                            {% elif loop.index0 == question.answer_index and not result.is_correct %}
+                                <strong>Correct Answer:</strong> {{ option }} ✅
+                            {% else %}
+                                {{ option }}
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a href="{{ url_for('quiz.quiz_detail', quiz_id=quiz.id) }}" class="btn btn-primary">
+            📊 View Quiz Details
+        </a>
+        <form action="{{ url_for('quiz.start_quiz', quiz_id=quiz.id) }}" method="post" class="inline-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <button type="submit" class="btn btn-success">🔄 Retake Quiz</button>
+        </form>
+        <a href="{{ url_for('quiz.my_quizzes') }}" class="btn btn-secondary">
+            📚 My Quiz History
+        </a>
+        <a href="{{ url_for('quiz.index') }}" class="btn btn-secondary">
+            🏠 Back to Home
+        </a>
+    </div>
+    </div>
+</div>
+{% endblock %}

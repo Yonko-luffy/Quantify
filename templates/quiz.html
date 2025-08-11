@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>{{ quiz.name }} - Quiz Details</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/quiz.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/quiz-detail.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="index-main">
+    <div class="quiz-detail-container">
+    <div class="quiz-header">
+        <h1 class="quiz-title">{{ quiz.name }}</h1>
+        <div class="quiz-meta">
+            Created by {{ quiz.creator.username if quiz.creator else 'Admin' }}
+            {% if quiz.created_at %}
+                • {{ quiz.created_at.strftime('%B %d, %Y') }}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="quiz-info-card">
+        <h2>Quiz Information</h2>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-number">{{ questions|length }}</div>
+                <div class="info-label">Total Questions</div>
+            </div>
+            {% if stats %}
+            <div class="info-item">
+                <div class="info-number">{{ stats.answered_questions }}</div>
+                <div class="info-label">Questions Answered</div>
+            </div>
+            <div class="info-item">
+                <div class="info-number">{{ "%.1f"|format(stats.accuracy) }}%</div>
+                <div class="info-label">Current Accuracy</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if progress %}
+        {% if progress.completed_at %}
+            <!-- Quiz Completed -->
+            <div class="quiz-info-card">
+                <h2>Quiz Completed ✅</h2>
+                <div class="stats-summary">
+                    <p><strong>Final Score:</strong> {{ progress.score }}/{{ questions|length }} ({{ "%.1f"|format((progress.score / questions|length) * 100) if questions|length > 0 else 0 }}%)</p>
+                    <p><strong>Completed:</strong> {{ progress.completed_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                </div>
+                <div class="action-buttons">
+                    <a href="{{ url_for('quiz.quiz_results', quiz_id=quiz.id) }}" class="btn btn-primary">
+                        View Detailed Results
+                    </a>
+                    <form action="{{ url_for('quiz.start_quiz', quiz_id=quiz.id) }}" method="post" class="inline-form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="btn btn-secondary">Retake Quiz</button>
+                    </form>
+                </div>
+            </div>
+        {% else %}
+            <!-- Quiz In Progress -->
+            <div class="progress-section">
+                <div class="progress-title">Quiz In Progress</div>
+                <p style="font-size:0.95rem; color:var(--text-muted); margin-bottom:6px;">Continue where you left off.</p>
+                {% if stats.completion > 0 %}
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ stats.completion }}%"></div>
+                    </div>
+                    <p style="font-size:0.95rem; color:var(--text-muted); margin-bottom:6px;">Progress: {{ "%.1f"|format(stats.completion) }}% complete</p>
+                {% endif %}
+                <div class="action-buttons">
+                    <a href="{{ url_for('quiz.take_quiz', quiz_id=quiz.id) }}" class="btn btn-primary">
+                        Continue Quiz
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    {% else %}
+        <!-- Quiz Not Started -->
+        <div class="quiz-info-card">
+            <h2>Ready to Start?</h2>
+            <p>This quiz contains {{ questions|length }} question{{ 's' if questions|length != 1 else '' }}. 
+               You can answer them one by one and get immediate feedback after each question.</p>
+            
+            <div class="action-buttons">
+                <form action="{{ url_for('quiz.start_quiz', quiz_id=quiz.id) }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <button type="submit" class="btn btn-primary">
+                        Start Quiz
+                    </button>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="action-buttons">
+        <a href="{{ url_for('quiz.index') }}" class="btn btn-info">
+            ← Back to All Quizzes
+        </a>
+        {% if current_user.is_authenticated %}
+            <a href="{{ url_for('quiz.my_quizzes') }}" class="btn btn-info">
+                My Quiz History
+            </a>
+        {% endif %}
+    </div>
+    </div>
+</div>
+{% endblock %}

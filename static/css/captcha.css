@@ -1,0 +1,325 @@
+/* CAPTCHA Styling for Quiz Application */
+
+/* ========== CAPTCHA CONTAINER ========== */
+.captcha-group {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.captcha-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
+}
+
+.captcha-container:hover {
+    border-color: var(--accent);
+    box-shadow: var(--shadow-hover);
+}
+
+/* ========== RECAPTCHA WIDGET STYLING ========== */
+.g-recaptcha {
+    transform: scale(1);
+    transition: transform 0.2s ease;
+}
+
+.g-recaptcha:hover {
+    transform: scale(1.02);
+}
+
+/* ========== FORM INTEGRATION ========== */
+.form-group.captcha-group {
+    margin: 25px 0;
+    padding: 5px 0;
+}
+
+.auth-form .captcha-group {
+    border-top: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border-light);
+    margin: 25px 0;
+    padding: 20px 0;
+    background: var(--card);
+    border-radius: 8px;
+}
+
+/* ========== ALERT MESSAGES FOR CAPTCHA ========== */
+.alert {
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.alert-danger {
+    background-color: var(--danger-light);
+    color: var(--danger-dark);
+    border-color: var(--danger);
+}
+
+.alert-danger::before {
+    content: "⚠️";
+    font-size: 1.1rem;
+}
+
+.alert-success {
+    background-color: var(--success-light);
+    color: var(--success-dark);
+    border-color: var(--success);
+}
+
+.alert-success::before {
+    content: "✅";
+    font-size: 1.1rem;
+}
+
+.alert-warning {
+    background-color: var(--warning-light);
+    color: var(--warning-dark);
+    border-color: var(--warning);
+}
+
+.alert-warning::before {
+    content: "⏱️";
+    font-size: 1.1rem;
+}
+
+.alert-info {
+    background-color: var(--info-light);
+    color: var(--info-dark);
+    border-color: var(--info);
+}
+
+.alert-info::before {
+    content: "ℹ️";
+    font-size: 1.1rem;
+}
+
+/* ========== ENHANCED FORM STYLING ========== */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: var(--text);
+    font-size: 0.9rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    background: var(--background);
+    color: var(--text);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.1);
+    background: var(--card);
+}
+
+.form-control:invalid {
+    border-color: var(--danger);
+}
+
+.form-control:valid {
+    border-color: var(--success);
+}
+
+/* ========== SUBMIT BUTTON STYLING ========== */
+.auth-submit-btn {
+    width: 100%;
+    padding: 14px 20px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.auth-submit-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-hover);
+}
+
+.auth-submit-btn:active {
+    transform: translateY(0);
+}
+
+.auth-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ========== FORM LINKS STYLING ========== */
+.form-links {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-light);
+}
+
+.form-links p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+.form-links a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.form-links a:hover {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+/* ========== RESPONSIVE DESIGN ========== */
+@media (max-width: 768px) {
+    .captcha-container {
+        padding: 8px;
+        margin: 0 auto;
+    }
+    
+    .g-recaptcha {
+        transform: scale(0.9);
+    }
+    
+    .g-recaptcha:hover {
+        transform: scale(0.92);
+    }
+    
+    .auth-form .captcha-group {
+        margin: 20px -10px;
+        padding: 15px 10px;
+    }
+    
+    .form-control {
+        padding: 10px 14px;
+        font-size: 0.95rem;
+    }
+    
+    .alert {
+        padding: 10px 14px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .captcha-container {
+        padding: 6px;
+    }
+    
+    .g-recaptcha {
+        transform: scale(0.8);
+    }
+    
+    .g-recaptcha:hover {
+        transform: scale(0.82);
+    }
+    
+    .auth-submit-btn {
+        padding: 12px 18px;
+        font-size: 1rem;
+    }
+}
+
+/* ========== CAPTCHA ERROR STATES ========== */
+.captcha-error {
+    border-color: var(--danger) !important;
+    background-color: var(--danger-light);
+}
+
+.captcha-success {
+    border-color: var(--success) !important;
+    background-color: var(--success-light);
+}
+
+/* ========== DARK THEME ADJUSTMENTS ========== */
+.dark-theme .captcha-container {
+    background: var(--card);
+    border-color: var(--border);
+}
+
+.dark-theme .g-recaptcha {
+    filter: invert(1) hue-rotate(180deg);
+}
+
+.dark-theme .alert-danger {
+    background-color: rgba(220, 53, 69, 0.2);
+}
+
+.dark-theme .alert-success {
+    background-color: rgba(40, 167, 69, 0.2);
+}
+
+.dark-theme .alert-warning {
+    background-color: rgba(255, 193, 7, 0.2);
+}
+
+.dark-theme .alert-info {
+    background-color: rgba(23, 162, 184, 0.2);
+}
+
+/* ========== LOADING STATE ========== */
+.captcha-loading {
+    position: relative;
+}
+
+.captcha-loading::after {
+    content: "Loading CAPTCHA...";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--background);
+    color: var(--text-muted);
+    padding: 20px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+/* ========== ACCESSIBILITY IMPROVEMENTS ========== */
+@media (prefers-reduced-motion: reduce) {
+    .captcha-container,
+    .g-recaptcha,
+    .form-control,
+    .auth-submit-btn {
+        transition: none;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .captcha-container {
+        border-width: 2px;
+    }
+    
+    .alert {
+        border-width: 2px;
+    }
+}

@@ -94,7 +94,7 @@ def create_quiz():
         return render_template("manage_quizzes.html", quizzes=quizzes, error="Quiz with this name already exists!")
     
     try:
-        new_quiz = Quiz(name=quiz_name, difficulty="easy", created_by=current_user.id)
+        new_quiz = Quiz(name=quiz_name, created_by=current_user.id)
         db.session.add(new_quiz)
         db.session.commit()
         return redirect(url_for("admin.edit_quiz", quiz_id=new_quiz.id))
@@ -121,6 +121,7 @@ def edit_quiz(quiz_id):
                 return redirect(url_for("admin.edit_quiz", quiz_id=quiz.id))
         elif action == "add_question":
             question_text = request.form.get("question_text")
+            explanation = request.form.get("explanation", "").strip()
             # Normalize whitespace for each option
             options_raw = [request.form.get(f"option{i}") for i in range(1, 6)]
             options = []
@@ -142,7 +143,13 @@ def edit_quiz(quiz_id):
                         if answer_index < 0 or answer_index >= len(options):
                             error = "Invalid answer index."
                         else:
-                            new_q = Questions(quiz_id=quiz.id, question_text=question_text, options=options, answer_index=answer_index)
+                            new_q = Questions(
+                                quiz_id=quiz.id, 
+                                question_text=question_text, 
+                                options=options, 
+                                answer_index=answer_index,
+                                explanation=explanation if explanation else None
+                            )
                             db.session.add(new_q)
                             db.session.commit()
                             return redirect(url_for("admin.edit_quiz", quiz_id=quiz.id))
@@ -186,6 +193,7 @@ def edit_question(question_id):
     
     if request.method == "POST":
         question_text = request.form.get("question_text")
+        explanation = request.form.get("explanation", "").strip()
         options = [request.form.get(f"option{i}") for i in range(1, 6) if request.form.get(f"option{i}")]
         answer_index = request.form.get("answer_index")
         
@@ -198,6 +206,7 @@ def edit_question(question_id):
                     question.question_text = question_text
                     question.options = options
                     question.answer_index = answer_index
+                    question.explanation = explanation if explanation else None
                     db.session.commit()
                     success = "Question updated."
             except Exception as e:
@@ -219,6 +228,7 @@ def update_question_inline(question_id):
     try:
         # Handle form submission
         question_text = request.form.get("question_text", "").strip()
+        explanation = request.form.get("explanation", "").strip()
         options = []
         
         # Collect dynamic options from form
@@ -261,6 +271,7 @@ def update_question_inline(question_id):
         question.question_text = question_text
         question.options = options
         question.answer_index = answer_index
+        question.explanation = explanation if explanation else None
         db.session.commit()
         
         # Success response with template rendering

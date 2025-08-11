@@ -48,27 +48,38 @@
 }
 .quiz-edit-form input[type="text"],
 .question-add-form input[type="text"],
+.question-add-form textarea,
 .question-add-form select {
   width: 100%;
   padding: 0.7em 1em;
   border-radius: 8px;
-  border: 2px solid var(--border);
+  border: 2px solid #ddd;
   margin-bottom: 1em;
   background: rgba(255, 255, 255, 0.9);
   color: var(--text);
   font-size: 1rem;
   font-weight: 500;
   transition: border 0.2s;
+  font-family: inherit;
 }
 
 .quiz-edit-form input[type="text"]:focus,
 .question-add-form input[type="text"]:focus,
+.question-add-form textarea:focus,
 .question-add-form select:focus {
   background: rgba(255, 255, 255, 0.95);
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
   outline: none;
 }
+
+/* Textarea specific styling */
+.question-add-form textarea {
+  min-height: 80px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
 .question-add-form select {
   width: auto;
   display: inline-block;
@@ -159,6 +170,34 @@
 .questions-container-inline .question-text-edit[readonly] {
   background: rgba(248, 249, 250, 0.8);
   border-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Inline form textarea styling */
+.questions-container-inline textarea {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text);
+  transition: all 0.2s ease;
+  min-height: 80px;
+  resize: vertical;
+  line-height: 1.5;
+  font-family: inherit;
+}
+
+.questions-container-inline textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+  outline: none;
+}
+
+.questions-container-inline textarea[readonly] {
+  background: rgba(248, 249, 250, 0.8);
+  border-color: #ccc;
 }
 
 .questions-container-inline .inline-options {

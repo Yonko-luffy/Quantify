@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>{{ quiz.name }} - Question {{ question_number }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/quiz.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/take-quiz.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="index-main">
+    <div class="take-quiz-container">
+    <!-- Progress Header -->
+    <div class="quiz-progress-header">
+        <h1>{{ quiz.name }}</h1>
+        <p>Question {{ question_number }} of {{ total_questions }}</p>
+        <div class="progress-bar-container">
+            <div class="progress-bar" style="width: {{ (answered_count / total_questions * 100) }}%"></div>
+        </div>
+        <p>Progress: {{ answered_count }}/{{ total_questions }} completed</p>
+        {% if progress %}
+            <div class="score-display">Current Score: {{ progress.score }} correct</div>
+        {% endif %}
+    </div>
+
+    <!-- Question Card -->
+    <div class="question-card">
+        <div class="question-text">
+            {{ question.question_text }}
+        </div>
+        <form action="{{ url_for('quiz.submit_answer', quiz_id=quiz.id, question_id=question.id) }}" method="post" id="questionForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <div class="options-container">
+                {% for option in question.options %}
+                    <div class="option-item">
+                        <input type="radio" 
+                               name="answer" 
+                               value="{{ loop.index0 }}" 
+                               id="option_{{ loop.index0 }}" 
+                               class="option-input"
+                               onchange="enableSubmit()">
+                        <label for="option_{{ loop.index0 }}" class="answer-option">
+                            <span class="option-letter">{{ 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[loop.index0] }}</span>
+                            {{ option }}
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="submit-section">
+                <button type="submit" class="submit-btn" id="submitBtn" disabled>
+                    Submit Answer
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Navigation -->
+    <div class="quiz-navigation">
+        <a href="{{ url_for('quiz.quiz_detail', quiz_id=quiz.id) }}" class="nav-btn">
+            ← Back to Quiz Details
+        </a>
+        <div>
+            <span>{{ answered_count }} of {{ total_questions }} answered</span>
+        </div>
+    </div>
+</div>
+
+<script>
+function enableSubmit() {
+    const submitBtn = document.getElementById('submitBtn');
+    const selectedOption = document.querySelector('input[name="answer"]:checked');
+    submitBtn.disabled = !selectedOption;
+}
+
+// Auto-submit form when option is selected (optional)
+document.querySelectorAll('input[name="answer"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        // Optional: Auto-submit after a short delay
+        // setTimeout(() => document.getElementById('questionForm').submit(), 1000);
+    });
+});
+</script>
+    </div>
+</div>
+{% endblock %}

@@ -18,6 +18,7 @@
   {% endif %}
 
   <form method="post" class="question-edit-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <label for="question_text">Question Text:</label>
     <input type="text" name="question_text" id="question_text" value="{{ question.question_text }}" required />
     <div class="options-group">
@@ -31,6 +32,8 @@
         <option value="{{i}}" {% if i == question.answer_index %}selected{% endif %}>Option {{i+1}}</option>
       {% endfor %}
     </select>
+    <label for="explanation">Explanation (optional):</label>
+    <textarea name="explanation" id="explanation" placeholder="Explain why this answer is correct and others are wrong..." rows="3" style="width: 100%; margin-bottom: 1em; padding: 8px; border: 1px solid var(--border); border-radius: 4px;">{{ question.explanation if question.explanation else '' }}</textarea>
     <button type="submit" class="btn">Update Question</button>
   </form>
 </div>

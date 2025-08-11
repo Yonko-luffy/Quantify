@@ -34,14 +34,16 @@
               <div class="user-actions">
                 {% if user.id != current_user.id %}
                 <!-- Update User Role Form -->
-                <form class="user-action-row" style="display: flex; flex-direction: row; align-items: center; gap: 8px; margin: 0;" action="{{ url_for('admin.edit_user', user_id=user.id) }}" method="post" onsubmit="return confirmRoleChange(this, '{{ user.username }}', '{{ user.role }}');">
+                <form class="user-action-row flex-row" action="{{ url_for('admin.edit_user', user_id=user.id) }}" method="post" onsubmit="return confirmRoleChange(this, '{{ user.username }}', '{{ user.role }}');">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                   <select name="role" class="role-select">
                     <option value="user" {% if user.role == 'user' %}selected{% endif %}>User</option>
                     <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
                   </select>
                   <button type="submit" class="btn btn-primary btn-small">Update Role</button>
                 </form>
-                <form style="display: flex; flex-direction: row; align-items: center; margin: 0;" action="{{ url_for('admin.delete_user', user_id=user.id) }}" method="post" onsubmit="return confirmDeleteUser('{{ user.username }}', {{ user.id }});">
+                <form class="flex-row" action="{{ url_for('admin.delete_user', user_id=user.id) }}" method="post" onsubmit="return confirmDeleteUser('{{ user.username }}', {{ user.id }});">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                   <button type="submit" class="btn btn-danger btn-small">Delete</button>
                 </form>
                 {% else %}

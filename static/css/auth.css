@@ -119,3 +119,44 @@
 .form-control::placeholder {
   color: #888;
 }
+
+/* Simple alert styles */
+.alert {
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+/* reCAPTCHA widget styling */
+.g-recaptcha {
+  display: flex !important;
+  justify-content: center !important;
+  margin: 1rem 0 !important;
+  width: 100% !important;
+}
+
+/* Make reCAPTCHA responsive and match button width */
+.g-recaptcha > div {
+  width: 100% !important;
+  max-width: 304px !important;
+  margin: 0 auto !important;
+}
+
+@media (max-width: 480px) {
+  .g-recaptcha {
+    transform: scale(0.9) !important;
+  }
+}

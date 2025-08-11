@@ -4,6 +4,7 @@ from flask_login import LoginManager
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_limiter.errors import RateLimitExceeded
+from flask_wtf.csrf import CSRFProtect
 from livereload import Server
 
 # Import configuration
@@ -26,6 +27,9 @@ db.init_app(app)
 login_manager.init_app(app)
 login_manager.login_view = 'auth.login'
 
+# CSRF Protection (recommended with CAPTCHA)
+csrf = CSRFProtect(app)
+
 # Limiter setup
 limiter = Limiter(
     key_func=get_remote_address,
@@ -34,14 +38,26 @@ limiter = Limiter(
 )
 
 # ================================
+# Template Context Processors
+# ================================
+@app.context_processor
+def inject_recaptcha_config():
+    """Make reCAPTCHA configuration available in all templates"""
+    return {
+        'RECAPTCHA_PUBLIC_KEY': app.config.get('RECAPTCHA_PUBLIC_KEY'),
+        'RECAPTCHA_ENABLED': app.config.get('RECAPTCHA_ENABLED', False),
+        'RECAPTCHA_OPTIONS': app.config.get('RECAPTCHA_OPTIONS', {})
+    }
+
+# ================================
 # Error Handlers
 # ================================
 @app.errorhandler(RateLimitExceeded)
 def handle_rate_limit(e):
-    """Handle rate limit exceeded errors"""
+    """Handle rate limit exceeded errors with CAPTCHA support"""
     cooldown = True
     return render_template("login.html", 
-                         error="Too many login attempts. Try again later.", 
+                         error="Too many login attempts. Please complete CAPTCHA and try again.", 
                          cooldown=cooldown), 429
 
 # ================================
@@ -70,8 +86,9 @@ with app.app_context():
 # Development Server
 # ================================
 if __name__ == "__main__":
-    # Start the Livereload server
-    server = Server(app.wsgi_app)
-    server.serve()
-    # Use standard Flask development server
-    # app.run(debug=True, port=5000)
+    # Use standard Flask development server with debug mode
+    app.run(debug=True, port=5002, host='127.0.0.1')
+    
+    # Start the Livereload server on a different port
+    # server = Server(app.wsgi_app)
+    # server.serve(port=5001, host='127.0.0.1')

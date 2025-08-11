@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>My Quizzes</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/quiz.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/my-quizzes.css') }}">
+{% endblock %}
+{% block body %}
+<div class="index-main">
+    <div class="my-quizzes-container">
+        <h1 class="quiz-title">My Quizzes</h1>
+        
+        <!-- Statistics Summary -->
+        <div class="stats-summary">
+            <div class="quiz-card stat-card">
+                <div class="stat-number">
+                    {% set total_attempts = 0 %}
+                    {% for quiz_id, quiz_data in completed_by_quiz.items() %}
+                        {% set total_attempts = total_attempts + quiz_data.attempts|length %}
+                    {% endfor %}
+                    {{ total_attempts }}
+                </div>
+                <div class="stat-label">Total Attempts</div>
+            </div>
+            <div class="quiz-card stat-card">
+                <div class="stat-number">{{ ongoing|length }}</div>
+                <div class="stat-label">In Progress</div>
+            </div>
+            <div class="quiz-card stat-card">
+                <div class="stat-number">{{ completed_by_quiz|length }}</div>
+                <div class="stat-label">Unique Quizzes</div>
+            </div>
+        </div>
+        
+        <!-- Ongoing Quizzes -->
+        {% if ongoing %}
+        <div class="quiz-card section">
+            <h2 class="section-title">🚀 In Progress</h2>
+            {% for quiz, progress in ongoing %}
+            <div class="quiz-item">
+                <div class="quiz-info">
+                    <div class="quiz-name">{{ quiz.name }}</div>
+                    <div class="quiz-meta">
+                        Started: {{ progress.started_at.strftime('%B %d, %Y at %I:%M %p') }}
+                        <br>Current Score: {{ progress.score }} correct
+                    </div>
+                </div>
+                <div class="quiz-actions">
+                    <a href="{{ url_for('quiz.take_quiz', quiz_id=quiz.id) }}" class="btn btn-continue">
+                        Continue Quiz
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <!-- Completed Quizzes -->
+        {% if completed_by_quiz %}
+        <div class="quiz-card section">
+            <h2 class="section-title">✅ Quiz History (All Attempts)</h2>
+            {% for quiz_id, quiz_data in completed_by_quiz.items() %}
+            <div class="quiz-group">
+                <h3 class="quiz-group-title">{{ quiz_data.quiz_name }}</h3>
+                {% for attempt in quiz_data.attempts %}
+                <div class="quiz-item attempt-item">
+                    <div class="quiz-info">
+                        <div class="quiz-name">
+                            Attempt #{{ attempt.attempt_number }}
+                            {% if loop.first %}
+                                <span class="latest-badge">Latest</span>
+                            {% endif %}
+                        </div>
+                        <div class="quiz-meta">
+                            Completed: {{ attempt.completed_at.strftime('%B %d, %Y at %I:%M %p') }}
+                            <br>Total Questions: {{ attempt.total_questions }}
+                        </div>
+                    </div>
+                    <div class="score-display">
+                        {{ attempt.score }}/{{ attempt.total_questions }}
+                        <br>
+                        <small>{{ "%.1f"|format((attempt.score / attempt.total_questions) * 100) }}%</small>
+                    </div>
+                    <div class="quiz-actions">
+                        <a href="{{ url_for('quiz.quiz_results', quiz_id=attempt.id, attempt=attempt.attempt_number) }}" class="btn btn-view">
+                            View Results
+                        </a>
+                        {% if loop.first %}
+                        <a href="{{ url_for('quiz.quiz_detail', quiz_id=attempt.id) }}" class="btn btn-retake">
+                            Retake Quiz
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <!-- No Quizzes -->
+        {% if not ongoing and not completed_by_quiz %}
+        <div class="quiz-card section">
+            <div class="no-quizzes">
+                <h3>No quiz attempts yet</h3>
+                <p>Start your learning journey by taking your first quiz!</p>
+                <a href="{{ url_for('quiz.index') }}" class="quiz-btn">Browse Quizzes</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

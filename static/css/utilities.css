@@ -1,5 +1,38 @@
 /* ========== UTILITY CLASSES ========== */
 
+/* Layout utilities */
+.inline-form {
+  display: inline;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.centered-content {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.no-margin {
+  margin: 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-muted);
+}
+
 /* Auth button styles */
 .auth-buttons {
   display: flex;

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>Answer Feedback - {{ quiz.name }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/quiz.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/feedback.css') }}">
+{% endblock %}
+{% block body %}
+<div class="index-main">
+    <div class="feedback-container">
+        <h1 class="quiz-title">{{ quiz.name }}</h1>
+        
+        <div class="quiz-card feedback-result {{ 'feedback-correct' if is_correct else 'feedback-incorrect' }}">
+            <div class="feedback-icon">
+                {{ '✅' if is_correct else '❌' }}
+            </div>
+            <div class="feedback-message">
+                {{ 'Correct!' if is_correct else 'Incorrect!' }}
+            </div>
+            {% if is_correct %}
+                <p>Great job! You got it right.</p>
+            {% else %}
+                <p>Don't worry, keep learning!</p>
+            {% endif %}
+        </div>
+        
+        <div class="quiz-card answer-details">
+            <div class="question-text">
+                {{ question.question_text }}
+            </div>
+            
+            <div class="answers-review">
+                {% for option in question.options %}
+                    {% set i = loop.index0 %}
+                    <div class="answer-option ">
+                        {% if i == selected_index %}
+                            <strong>Your answer:</strong> {{ option }}
+                            {% if is_correct %}
+                                ✅
+                            {% else %}
+                                ❌
+                            {% endif %}
+                        {% elif i == question.answer_index and not is_correct %}
+                            <strong>Correct answer:</strong> {{ option }} ✅
+                        {% else %}
+                            {{ option }}
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div class="explanation-section">
+                <h3>Explanation</h3>
+                {% if question.explanation and question.explanation.strip() %}
+                <p class="explanation-text">{{ question.explanation }}</p>
+                {% else %}
+                <p class="explanation-text no-explanation">No explanation given.</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="quiz-card quiz-progress">
+            <p>Keep going! You're doing great.</p>
+        </div>
+        
+        <form action="{{ url_for('quiz.next_question', quiz_id=quiz.id) }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <button type="submit" class="quiz-btn continue-btn">
+                Continue to Next Question →
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

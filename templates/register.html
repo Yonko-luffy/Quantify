@@ -1,39 +1,79 @@
 {% extends "base.html" %}
 
 {% block head %}
-<title>Register</title>
+<title>Register - Quiz App</title>
 {% endblock %}
 
 {% block body %}
+<div class="index-main">
+  <div class="auth-container">
+    <form class="auth-form" method="post" action="{{ url_for('auth.register') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+      <h2>Sign Up</h2>
 
-<div class="auth-container">
-  <h2>Create Account</h2>
+      <!-- Error messages -->
+      {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+      {% endif %}
 
-  {% if error %}
-    <div class="error-message">
-      {{ error }}
-    </div>
-  {% endif %}
-  <!-- Registration Form -->
-  <form action="/register" method="post" class="auth-form">
-  <!--stores username-->
-  <label for="username"></label>
-  <input type="text" name="username" placeholder="Username" required />
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
 
-  <!--stores email-->
-  <input type="email" name="email" placeholder="Email" required />
+      <!-- Username Field -->
+      <input type="text" 
+             name="username" 
+             placeholder="Username" 
+             value="{{ username or '' }}"
+             required
+             minlength="3">
 
-  <!--stores password-->
-  <input type="password" name="password" placeholder="Password" required />
+      <!-- Email Field -->
+      <input type="email" 
+             name="email" 
+             placeholder="Email" 
+             value="{{ email or '' }}"
+             required>
 
-  <!--confirm password-->
-  <input type="password" name="confirm_password" placeholder="Confirm Password" required />
+      <!-- Password Field -->
+      <input type="password" 
+             name="password" 
+             placeholder="Password" 
+             required
+             minlength="6">
 
-  <button type="submit" class="btn">Register</button>
-</form>
+      <!-- Confirm Password Field -->
+      <input type="password" 
+             name="confirm_password" 
+             placeholder="Confirm Password" 
+             required
+             minlength="6">
 
-  <a href="{{ url_for('auth.login') }}" class="btn secondary-btn">Log In</a>
+      <!-- reCAPTCHA Widget (Simple) -->
+      {% if RECAPTCHA_ENABLED %}
+      <div class="g-recaptcha" 
+           data-sitekey="{{ RECAPTCHA_PUBLIC_KEY }}">
+      </div>
+      {% endif %}
+
+      <!-- Submit Button -->
+      <button type="submit" class="btn">Create Account</button>
+      
+      <!-- Login Link -->
+      <a href="{{ url_for('auth.login') }}" class="btn secondary-btn">Already have an account?</a>
+    </form>
+  </div>
 </div>
 
+<!-- reCAPTCHA Script -->
+{% if RECAPTCHA_ENABLED %}
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+{% endif %}
 {% endblock %}
-

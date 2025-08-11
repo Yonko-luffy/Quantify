@@ -1,11 +1,12 @@
-# routes/auth.py
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+# routes/auth.py - Authentication Routes with CAPTCHA Support
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
 from models import db, Users
+from utils.captcha import CaptchaValidator
 
 # Create blueprint
 auth_bp = Blueprint('auth', __name__)
@@ -65,33 +66,54 @@ def register():
 
 
 @auth_bp.route('/login', methods=["GET", "POST"])
-@limiter.limit("5 per minute,10 per 10 minute,20 per hour")
+@limiter.limit("5 per minute,10 per 10 minutes,20 per hour")  # Enhanced rate limiting
 def login():
-    """Handle user login with rate limiting"""
+    """Handle user login with CAPTCHA protection and rate limiting"""
     success_msg = request.args.get('success')
     
     if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+        captcha_response = request.form.get('g-recaptcha-response')
+        
+        # Validate CAPTCHA first (if enabled)
+        if CaptchaValidator.is_captcha_enabled():
+            is_captcha_valid, captcha_error = CaptchaValidator.verify_recaptcha(captcha_response)
+            if not is_captcha_valid:
+                flash(captcha_error, "error")
+                return render_template("login.html", username=username)
+        
+        # Input validation
+        if not username or not password:
+            flash("Please enter both username and password.", "error")
+            return render_template("login.html", username=username)
+        
+        # Check user credentials
         user = Users.query.filter_by(username=username).first()
 
         if user and check_password_hash(user.password, password):
             login_user(user)
-            return redirect(url_for("quiz.index"))
+            flash("Login successful!", "success")
+            
+            # Redirect to next page if specified, otherwise to quiz index
+            next_page = request.args.get('next')
+            return redirect(next_page) if next_page else redirect(url_for("quiz.index"))
         else:
-            return render_template("login.html", error="Invalid username or password!")
+            flash("Invalid username or password!", "error")
+            return render_template("login.html", username=username)
 
+    # If user is already authenticated, redirect to quiz index
     if current_user.is_authenticated:
         return redirect(url_for("quiz.index"))
 
     return render_template("login.html", success=success_msg)
 
 
-# @auth_bp.route("/profile")
-# @login_required
-# def profile():
-#     """Redirect to current user's profile"""
-#     return redirect(url_for("auth.profile_user", username=current_user.username))
+@auth_bp.route("/profile")
+@login_required
+def profile():
+    """Redirect to current user's profile"""
+    return redirect(url_for("auth.profile_user", username=current_user.username))
 
 
 @auth_bp.route("/profile/<username>")

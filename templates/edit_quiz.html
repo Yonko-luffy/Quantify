@@ -20,6 +20,7 @@
 
     <!-- Edit Quiz Name -->
     <form method="post" class="quiz-edit-form" style="margin-bottom:2em;">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
       <input type="hidden" name="action" value="update_name" />
       <label for="quiz_name">Quiz Name:</label>
       <input type="text" name="quiz_name" id="quiz_name" value="{{ quiz.name }}" required style="margin-bottom:1em;" />
@@ -28,6 +29,7 @@
 
     <!-- Add Question -->
     <form method="post" class="question-add-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
       <input type="hidden" name="action" value="add_question" />
       <h3>Add Question</h3>
       <input type="text" name="question_text" placeholder="Question text..." required style="margin-bottom:1em;" />
@@ -46,6 +48,8 @@
         <option value="3">Option 4</option>
         <option value="4">Option 5</option>
       </select>
+      <label for="explanation">Explanation (optional):</label>
+      <textarea name="explanation" id="explanation" placeholder="Explain why this answer is correct and others are wrong..." rows="3" style="width: 100%; margin-bottom: 1em; padding: 8px; border: 2px solid #ddd; border-radius: 4px; background: rgba(255, 255, 255, 0.9);"></textarea>
       <button type="submit" class="btn">Add Question</button>
     </form>
 
@@ -55,6 +59,7 @@
       {% for q in questions %}
         <div class="question-inline" data-question-id="{{ q.id }}">
           <form action="{{ url_for('admin.update_question_inline', question_id=q.id) }}" method="post" class="question-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <input type="text" class="question-text-edit" name="question_text" value="{{ q.question_text }}" readonly>
             <div class="inline-options" data-option-count="{{ q.options|length }}">
               {% for opt in q.options %}
@@ -66,6 +71,10 @@
                   {% endif %}
                 </div>
               {% endfor %}
+            </div>
+            <div class="explanation-field">
+              <label for="explanation_{{ q.id }}" style="display:none; margin-top: 10px; font-weight: 500;">Explanation:</label>
+              <textarea name="explanation" id="explanation_{{ q.id }}" class="explanation-text" readonly style="width: 100%; height: 60px; margin-top: 5px; padding: 8px; border: 2px solid #ddd; border-radius: 4px; resize: vertical; background: rgba(255, 255, 255, 0.9);">{{ q.explanation if q.explanation else '' }}</textarea>
             </div>
             <div class="question-actions">
               <button type="button" class="action-btn edit-btn" onclick="enableEdit(this)">Edit</button>
@@ -99,21 +108,32 @@ function enableEdit(btn) {
   originalValues[questionId] = {
     questionText: form.querySelector('[name="question_text"]').value,
     options: Array.from(form.querySelectorAll('.option-text')).map(input => input.value),
-    correctAnswer: form.querySelector('input[type="radio"]:checked').value
+    correctAnswer: form.querySelector('input[type="radio"]:checked').value,
+    explanation: form.querySelector('[name="explanation"]').value
   };
   
   // Enable editing
   const inputs = form.querySelectorAll('input');
+  const textareas = form.querySelectorAll('textarea');
   const editBtn = container.querySelector('.edit-btn');
   const addOptionBtn = container.querySelector('.add-option-btn');
   const saveBtn = container.querySelector('.save-btn');
   const cancelBtn = container.querySelector('.cancel-btn');
   const removeButtons = container.querySelectorAll('.remove-option-btn');
+  const explanationLabel = form.querySelector('label[for^="explanation_"]');
   
   inputs.forEach(input => {
     input.removeAttribute('readonly');
     input.removeAttribute('disabled');
   });
+  
+  textareas.forEach(textarea => {
+    textarea.removeAttribute('readonly');
+  });
+  
+  if (explanationLabel) {
+    explanationLabel.style.display = 'block';
+  }
   
   editBtn.style.display = 'none';
   addOptionBtn.style.display = 'inline-flex';
@@ -136,6 +156,7 @@ function cancelEdit(btn) {
   if (originalValues[questionId]) {
     const original = originalValues[questionId];
     form.querySelector('[name="question_text"]').value = original.questionText;
+    form.querySelector('[name="explanation"]').value = original.explanation;
     
     const optionsContainer = container.querySelector('.inline-options');
     optionsContainer.innerHTML = '';
@@ -150,11 +171,13 @@ function cancelEdit(btn) {
   
   // Disable editing
   const inputs = form.querySelectorAll('input');
+  const textareas = form.querySelectorAll('textarea');
   const editBtn = container.querySelector('.edit-btn');
   const addOptionBtn = container.querySelector('.add-option-btn');
   const saveBtn = container.querySelector('.save-btn');
   const cancelBtn = container.querySelector('.cancel-btn');
   const removeButtons = container.querySelectorAll('.remove-option-btn');
+  const explanationLabel = form.querySelector('label[for^="explanation_"]');
   
   inputs.forEach(input => {
     if (input.type === 'text') {
@@ -163,6 +186,14 @@ function cancelEdit(btn) {
       input.setAttribute('disabled', 'disabled');
     }
   });
+  
+  textareas.forEach(textarea => {
+    textarea.setAttribute('readonly', 'readonly');
+  });
+  
+  if (explanationLabel) {
+    explanationLabel.style.display = 'none';
+  }
   
   editBtn.style.display = 'inline-flex';
   addOptionBtn.style.display = 'none';
