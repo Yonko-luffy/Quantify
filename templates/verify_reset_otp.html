@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block head %}
+<title>Verify Reset Code - Quiz App</title>
+{% endblock %}
+
+{% block body %}
+<div class="index-main">
+  <div class="auth-container">
+    <form class="auth-form" method="post" action="{{ url_for('auth.verify_reset_otp') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token else '' }}"/>
+      <h2>🔑 Verify Reset Code</h2>
+      
+      <div class="info-message">
+        <p>We've sent a 6-digit verification code to your email address.</p>
+        <p>Please enter the code below to proceed with password reset.</p>
+      </div>
+
+      <!-- Error message from direct rendering -->
+      {% if error %}
+        <div class="alert alert-danger">
+          {{ error }}
+        </div>
+      {% endif %}
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else category }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <!-- OTP Input Field -->
+      <input type="text" 
+             name="otp_code" 
+             placeholder="Enter 6-digit code" 
+             maxlength="6" 
+             pattern="[0-9]{6}" 
+             autocomplete="one-time-code"
+             class="otp-input"
+             required>
+
+      <!-- Submit Button -->
+      <button type="submit" class="btn">Verify Code</button>
+      
+      <!-- Resend Code -->
+      <div class="resend-section">
+        <p>Didn't receive the code?</p>
+        <form method="post" action="{{ url_for('auth.resend_otp') }}" style="display: inline;">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token else '' }}"/>
+          <button type="submit" class="btn-link">Resend Code</button>
+        </form>
+      </div>
+      
+      <!-- Back to Login -->
+      <a href="{{ url_for('auth.login') }}" class="btn secondary-btn">Back to Login</a>
+    </form>
+  </div>
+</div>
+{% endblock %}
