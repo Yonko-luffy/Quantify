@@ -41,3 +41,31 @@ class Config:
         'type': os.environ.get('RECAPTCHA_TYPE', 'image'),
         'size': os.environ.get('RECAPTCHA_SIZE', 'normal')
     }
+    
+    # --- Email Configuration ---
+    # SMTP settings for sending OTP emails
+    # TODO: Add these to your .env file:
+    # MAIL_SERVER=smtp.gmail.com
+    # MAIL_PORT=587
+    # MAIL_USE_TLS=True
+    # MAIL_USERNAME=your-email@gmail.com
+    # MAIL_PASSWORD=your-app-password
+    # MAIL_DEFAULT_SENDER=your-email@gmail.com
+    MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
+    MAIL_PORT = int(os.environ.get('MAIL_PORT', 587))
+    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'True').lower() == 'true'
+    MAIL_USE_SSL = os.environ.get('MAIL_USE_SSL', 'False').lower() == 'true'
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER')
+    
+    # --- 2FA & Password Reset Configuration ---
+    # TODO: Add these to your .env file:
+    # OTP_LENGTH=6
+    # OTP_EXPIRY_MINUTES=5
+    # TWO_FA_ENABLED=True
+    # PASSWORD_RESET_ENABLED=True
+    OTP_LENGTH = int(os.environ.get('OTP_LENGTH', 6))
+    OTP_EXPIRY_MINUTES = int(os.environ.get('OTP_EXPIRY_MINUTES', 5))
+    TWO_FA_ENABLED = os.environ.get('TWO_FA_ENABLED', 'True').lower() == 'true'
+    PASSWORD_RESET_ENABLED = os.environ.get('PASSWORD_RESET_ENABLED', 'True').lower() == 'true'

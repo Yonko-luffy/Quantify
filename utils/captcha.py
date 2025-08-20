@@ -23,7 +23,6 @@ class CaptchaValidator:
         # Check if reCAPTCHA is configured
         secret_key = current_app.config.get('RECAPTCHA_PRIVATE_KEY')
         if not secret_key:
-            current_app.logger.warning("reCAPTCHA private key not configured")
             return True, None  # Allow through if not configured (for development)
         
         # reCAPTCHA verification endpoint
@@ -41,8 +40,6 @@ class CaptchaValidator:
             response = requests.post(verify_url, data=verify_data, timeout=10)
             result = response.json()
             
-            current_app.logger.info(f"reCAPTCHA verification result: {result}")
-            
             if result.get('success'):
                 return True, None
             else:
@@ -56,22 +53,17 @@ class CaptchaValidator:
                 elif 'missing-input-response' in error_codes:
                     return False, "Please complete the CAPTCHA verification."
                 elif 'invalid-input-secret' in error_codes:
-                    current_app.logger.error("Invalid reCAPTCHA secret key")
                     return False, "CAPTCHA configuration error. Please contact support."
                 elif 'missing-input-secret' in error_codes:
-                    current_app.logger.error("Missing reCAPTCHA secret key")
                     return False, "CAPTCHA configuration error. Please contact support."
                 else:
                     return False, f"CAPTCHA verification failed: {', '.join(error_codes)}"
                     
         except requests.exceptions.Timeout:
-            current_app.logger.error("reCAPTCHA verification timeout")
             return False, "CAPTCHA verification timed out. Please try again."
         except requests.exceptions.RequestException as e:
-            current_app.logger.error(f"reCAPTCHA verification request failed: {str(e)}")
             return False, "CAPTCHA verification service unavailable. Please try again."
         except Exception as e:
-            current_app.logger.error(f"CAPTCHA verification error: {str(e)}")
             return False, "CAPTCHA verification failed. Please try again."
     
     @staticmethod

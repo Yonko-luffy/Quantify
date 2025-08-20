@@ -160,3 +160,79 @@
     transform: scale(0.9) !important;
   }
 }
+
+/* 2FA and Password Reset specific styles */
+.info-message {
+  background: rgba(74, 144, 226, 0.1);
+  border: 1px solid rgba(74, 144, 226, 0.2);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  color: var(--text);
+  text-align: left;
+}
+
+.info-message p {
+  margin: 0.5rem 0;
+}
+
+.info-message p:first-child {
+  margin-top: 0;
+}
+
+.info-message p:last-child {
+  margin-bottom: 0;
+}
+
+.otp-input {
+  font-size: 1.5rem !important;
+  letter-spacing: 0.5rem !important;
+  text-align: center !important;
+  font-weight: bold !important;
+  padding: 1rem !important;
+}
+
+.resend-section {
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.resend-section p {
+  color: var(--text-light);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0;
+}
+
+.btn-link:hover {
+  color: var(--hover);
+}
+
+.forgot-password-link {
+  display: block;
+  text-align: center;
+  margin-top: 1rem;
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.forgot-password-link:hover {
+  text-decoration: underline;
+  color: var(--hover);
+}
+
+.alert-info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}

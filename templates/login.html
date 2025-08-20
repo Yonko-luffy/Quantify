@@ -11,11 +11,18 @@
       <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token else '' }}"/>
       <h2>Sign In</h2>
 
+      <!-- Error message from direct rendering -->
+      {% if error %}
+        <div class="alert alert-danger">
+          {{ error }}
+        </div>
+      {% endif %}
+
       <!-- Flash Messages -->
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
           {% for category, message in messages %}
-            <div class="alert alert-{{ 'danger' if category == 'error'}}">
+            <div class="alert alert-{{ 'danger' if category == 'error' else category }}">
               {{ message }}
             </div>
           {% endfor %}
@@ -47,6 +54,9 @@
       
       <!-- Register Link -->
       <a href="{{ url_for('auth.signup') }}" class="btn secondary-btn">Register</a>
+      
+      <!-- Forgot Password Link -->
+      <a href="{{ url_for('auth.forgot_password') }}" class="forgot-password-link">Forgot Password?</a>
     </form>
   </div>
 </div>

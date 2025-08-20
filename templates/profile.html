@@ -6,6 +6,13 @@
 {% endblock %}
 
 {% block body %}
+<!-- Error message from direct rendering -->
+{% if error %}
+  <div class="alert alert-danger">
+    {{ error }}
+  </div>
+{% endif %}
+
 <div class="profile-card animate-fadeIn">
   <div class="profile-avatar">
     {{ profile_owner.username[0]|upper if profile_owner else 'U' }}

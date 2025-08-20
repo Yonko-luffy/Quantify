@@ -8,6 +8,24 @@
 
 {% block body %}
 <div class="index-main">
+    <!-- Error message from direct rendering -->
+    {% if error %}
+      <div class="alert alert-danger">
+        {{ error }}
+      </div>
+    {% endif %}
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'danger' if category == 'error' else category }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
     <div class="take-quiz-container">
     <!-- Progress Header -->
     <div class="quiz-progress-header">

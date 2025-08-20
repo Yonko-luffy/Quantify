@@ -25,6 +25,9 @@ def quiz_detail(quiz_id):
     quiz = Quiz.query.get_or_404(quiz_id)
     questions = Questions.query.filter_by(quiz_id=quiz_id).all()
     
+    # Get error from URL parameter
+    error = request.args.get('error')
+    
     if not questions:
         flash("This quiz has no questions yet. Please contact an administrator.", "warning")
         return redirect(url_for('quiz.index'))
@@ -42,7 +45,8 @@ def quiz_detail(quiz_id):
                          quiz=quiz, 
                          questions=questions,
                          progress=progress,
-                         stats=stats)
+                         stats=stats,
+                         error=error)
 
 
 @quiz_bp.route('/quiz/<int:quiz_id>/start', methods=['POST'])
@@ -73,16 +77,20 @@ def start_quiz(quiz_id):
     next_attempt = max_attempt + 1
     
     # Create new progress entry for new attempt
-    progress = QuizProgress(
-        user_id=current_user.id,
-        quiz_id=quiz_id,
-        score=0,
-        attempt_number=next_attempt
-    )
-    db.session.add(progress)
-    db.session.commit()
-    
-    return redirect(url_for('quiz.take_quiz', quiz_id=quiz_id))
+    try:
+        progress = QuizProgress(
+            user_id=current_user.id,
+            quiz_id=quiz_id,
+            score=0,
+            attempt_number=next_attempt
+        )
+        db.session.add(progress)
+        db.session.commit()
+        
+        return redirect(url_for('quiz.take_quiz', quiz_id=quiz_id))
+    except Exception as e:
+        db.session.rollback()
+        return redirect(url_for('quiz.quiz_detail', quiz_id=quiz_id, error="Failed to start quiz. Please try again."))
 
 
 @quiz_bp.route('/quiz/<int:quiz_id>/take')
@@ -90,6 +98,9 @@ def start_quiz(quiz_id):
 def take_quiz(quiz_id):
     """Take a quiz - display current question"""
     quiz = Quiz.query.get_or_404(quiz_id)
+    
+    # Get error from URL parameter
+    error = request.args.get('error')
     
     # Get user's progress
     progress = QuizProgress.query.filter_by(
@@ -128,10 +139,11 @@ def take_quiz(quiz_id):
                          progress=progress,
                          question_number=question_number,
                          answered_count=answered_count,
-                         total_questions=len(all_questions))
+                         total_questions=len(all_questions),
+                         error=error)
 
 
-@quiz_bp.route('/quiz/<int:quiz_id>/submit_answer/<int:question_id>', methods=['POST'])
+@quiz_bp.route('/quiz/<int:quiz_id>/submit-answer/<int:question_id>', methods=['POST'])
 @login_required
 def submit_answer(quiz_id, question_id):
     """Submit an answer for a quiz question with immediate feedback"""
@@ -145,8 +157,7 @@ def submit_answer(quiz_id, question_id):
     ).first()
     
     if not progress:
-        flash("No active quiz session found. Please start the quiz again.", "error")
-        return redirect(url_for('quiz.quiz_detail', quiz_id=quiz_id))
+        return redirect(url_for('quiz.quiz_detail', quiz_id=quiz_id, error="No active quiz session found. Please start the quiz again."))
     
     # Check if answer already submitted for this attempt
     existing_result = QuizResults.query.filter_by(
@@ -198,8 +209,7 @@ def submit_answer(quiz_id, question_id):
         
     except Exception as e:
         db.session.rollback()
-        flash("Failed to submit answer. Please try again.", "error")
-        return redirect(url_for('quiz.take_quiz', quiz_id=quiz_id))
+        return redirect(url_for('quiz.take_quiz', quiz_id=quiz_id, error="Failed to submit answer. Please try again."))
 
 
 @quiz_bp.route('/quiz/<int:quiz_id>/feedback/<int:question_id>')
@@ -217,8 +227,7 @@ def show_feedback(quiz_id, question_id):
     ).first()
     
     if not progress:
-        flash("No active quiz session found.", "error")
-        return redirect(url_for('quiz.quiz_detail', quiz_id=quiz_id))
+        return redirect(url_for('quiz.quiz_detail', quiz_id=quiz_id, error="No active quiz session found."))
     
     # Get user's answer for current attempt
     result = QuizResults.query.filter_by(
@@ -229,8 +238,7 @@ def show_feedback(quiz_id, question_id):
     ).first()
     
     if not result:
-        flash("Answer not found for current attempt.", "error")
-        return redirect(url_for('quiz.take_quiz', quiz_id=quiz_id))
+        return redirect(url_for('quiz.take_quiz', quiz_id=quiz_id, error="Answer not found for current attempt."))
     
     return render_template('answer_feedback.html',
                          quiz=quiz,
@@ -287,8 +295,7 @@ def quiz_results(quiz_id, attempt=None):
         ).order_by(QuizProgress.attempt_number.desc()).first()
     
     if not progress:
-        flash("No quiz attempt found.", "error")
-        return redirect(url_for('quiz.quiz_detail', quiz_id=quiz_id))
+        return redirect(url_for('quiz.quiz_detail', quiz_id=quiz_id, error="No quiz attempt found."))
     
     # Get detailed results with questions for this specific attempt
     results = db.session.query(QuizResults, Questions).join(

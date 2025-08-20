@@ -20,15 +20,16 @@ def admin_panel():
 # User Management Routes
 # ================================
 
-@admin_bp.route('/manage_users')
+@admin_bp.route('/manage-users')
 @admin_required
 def manage_users():
     """Display all users for management"""
     users = Users.query.order_by(Users.id.asc()).all()
-    return render_template('manage_users.html', users=users)
+    error = request.args.get('error')
+    return render_template('manage_users.html', users=users, error=error)
 
 
-@admin_bp.route('/manage_users/<int:user_id>/edit', methods=["POST"])
+@admin_bp.route('/manage-users/<int:user_id>/edit', methods=["POST"])
 @admin_required
 def edit_user(user_id):
     """Edit user role"""
@@ -36,16 +37,19 @@ def edit_user(user_id):
     user = Users.query.get(user_id)
 
     if user:
-        user.role = new_role
-        db.session.commit()
-        flash("User role updated successfully.", "success")
-        return redirect(url_for("admin.manage_users"))
+        try:
+            user.role = new_role
+            db.session.commit()
+            flash("User role updated successfully.", "success")
+            return redirect(url_for("admin.manage_users"))
+        except Exception as e:
+            db.session.rollback()
+            return redirect(url_for("admin.manage_users", error="Failed to update user role."))
     
-    flash("User not found.", "error")
-    return redirect(url_for("admin.manage_users"))
+    return redirect(url_for("admin.manage_users", error="User not found."))
 
 
-@admin_bp.route('/manage_users/<int:user_id>/delete', methods=["POST"])
+@admin_bp.route('/manage-users/<int:user_id>/delete', methods=["POST"])
 @admin_required
 def delete_user(user_id):
     """Delete a user"""
@@ -53,16 +57,18 @@ def delete_user(user_id):
     if user:
         # Prevent deleting yourself
         if user.id == current_user.id:
-            flash("You cannot delete your own account.", "error")
-            return redirect(url_for("admin.manage_users"))
+            return redirect(url_for("admin.manage_users", error="You cannot delete your own account."))
         
-        db.session.delete(user)
-        db.session.commit()
-        flash("User deleted successfully.", "success")
-        return redirect(url_for("admin.manage_users"))
+        try:
+            db.session.delete(user)
+            db.session.commit()
+            flash("User deleted successfully.", "success")
+            return redirect(url_for("admin.manage_users"))
+        except Exception as e:
+            db.session.rollback()
+            return redirect(url_for("admin.manage_users", error="Failed to delete user."))
     
-    flash("User not found.", "error")
-    return redirect(url_for("admin.manage_users"))
+    return redirect(url_for("admin.manage_users", error="User not found."))
 
 
 # ================================
@@ -74,7 +80,8 @@ def delete_user(user_id):
 def manage_quizzes():
     """Display all quizzes for management"""
     quizzes = Quiz.query.all()
-    return render_template('manage_quizzes.html', quizzes=quizzes)
+    error = request.args.get('error')
+    return render_template('manage_quizzes.html', quizzes=quizzes, error=error)
 
 
 @admin_bp.route('/quizzes/create', methods=["POST"])
@@ -174,8 +181,7 @@ def delete_quiz(quiz_id):
         flash("Quiz deleted successfully.", "success")
         return redirect(url_for("admin.manage_quizzes"))
     
-    flash("Quiz not found.", "error")
-    return redirect(url_for("admin.manage_quizzes"))
+    return redirect(url_for("admin.manage_quizzes", error="Quiz not found."))
 
 
 # ================================
@@ -218,7 +224,7 @@ def edit_question(question_id):
     return render_template("edit_question.html", question=question, quiz=quiz, error=error, success=success)
 
 
-@admin_bp.route('/questions/<int:question_id>/update_inline', methods=["POST"])
+@admin_bp.route('/questions/<int:question_id>/update-inline', methods=["POST"])
 @admin_required
 def update_question_inline(question_id):
     """Update a question inline with form submission"""

@@ -7,6 +7,24 @@
 
 {% block body %}
   <div class="admin-panel">
+    <!-- Error message from direct rendering -->
+    {% if error %}
+      <div class="alert alert-danger">
+        {{ error }}
+      </div>
+    {% endif %}
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'danger' if category == 'error' else category }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
     <h2>User Management</h2>
     <a href="{{ url_for('admin.admin_panel') }}" class="back-btn">← Back to Admin Panel</a>
     

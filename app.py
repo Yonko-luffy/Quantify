@@ -21,6 +21,7 @@ from flask_wtf.csrf import CSRFProtect                  # Provides Cross-Site Re
 from config import Config                               # Imports the application configuration class from config.py.
 from models import db, login_manager, Users             # Imports the database instance, login manager, and our User model.
 from routes import auth_bp, admin_bp, quiz_bp           # Imports route blueprints for modular routing. This keeps our app organized.
+from utils.email import email_service                   # Import email service for OTP functionality
 
 # ==============================================================================
 # Application Setup & Configuration
@@ -44,6 +45,7 @@ app.config.from_object(Config)
 # The 'init_app' pattern is used to bind an extension to a specific app.
 db.init_app(app)
 login_manager.init_app(app)
+email_service.init_app(app)  # Initialize email service for OTP functionality
 
 # This tells Flask-Login where to redirect users if they try to access a page
 # that requires them to be logged in. 'auth.login' refers to the 'login' function
@@ -144,7 +146,6 @@ with app.app_context():
     # and creates the corresponding tables in the database if they don't already exist.
     # It's safe to run this every time the app starts.
     db.create_all()
-    print("✅ Database tables created successfully.")
 
 # ==============================================================================
 # Development Server Entry Point
