@@ -55,6 +55,9 @@ docs/
 # Temporary files and scripts
 temp/
 
+# Test files and performance tests
+tests/
+
 #future things
 favicon.svg
 Group.svg

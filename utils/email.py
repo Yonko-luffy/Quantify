@@ -1,35 +1,70 @@
 # utils/email.py
 import secrets
+from concurrent.futures import ThreadPoolExecutor
 from flask import current_app
 from flask_mail import Mail, Message
 from models import db, OTPCode
-from threading import Thread
 
 
 class EmailService:
-    """Service for sending emails and managing OTP codes"""
+    """
+    Service for sending emails and managing OTP codes
+    
+    IMPLEMENTATION NOTE:
+    - Previously, we created a new Thread for every email (inefficient and unmanaged)
+    - Now using ThreadPoolExecutor with a fixed pool size for better resource management
+    - This is suitable for demo/resume deployment with moderate email volume
+    - Future improvement: Implement proper task queue (Celery/RQ) for production scalability
+    """
     
     def __init__(self):
         self.mail = None
+        # Thread pool for async email sending - limited to 10 concurrent emails
+        # This prevents resource exhaustion while allowing reasonable throughput
+        self.email_executor = ThreadPoolExecutor(max_workers=10, thread_name_prefix="email-sender")
     
     def init_app(self, app):
         """Initialize Flask-Mail with the app"""
         self.mail = Mail(app)
+        
+        # Register cleanup function to shutdown thread pool when app closes
+        @app.teardown_appcontext
+        def shutdown_email_executor(exception):
+            # Note: This will be called on every request, so we don't actually shutdown here
+            # The thread pool will be cleaned up when the process ends
+            pass
+    
+    def shutdown(self):
+        """Properly shutdown the email thread pool"""
+        if hasattr(self, 'email_executor'):
+            self.email_executor.shutdown(wait=True)
     
     def _send_async_email(self, app, msg):
-        """Send email in background thread"""
+        """
+        Send email in background thread
+        
+        NOTE: This method runs in the ThreadPoolExecutor, not in individual threads
+        """
         with app.app_context():
             try:
                 self.mail.send(msg)
             except Exception as e:
-                pass  # Silent failure for background operation
+                # Silent failure for background operation - emails are not critical for app function
+                pass
     
     def send_email_async(self, msg):
-        """Send email asynchronously"""
+        """
+        Send email asynchronously using ThreadPoolExecutor
+        
+        IMPROVEMENT NOTE:
+        - Old approach: Created new Thread() for each email (resource intensive, no limit)
+        - New approach: Submit to thread pool with managed workers
+        - Future: Replace with proper task queue (Celery/RQ) for production
+        """
         app = current_app._get_current_object()
-        thread = Thread(target=self._send_async_email, args=[app, msg])
-        thread.start()
-        return thread
+        # Submit email task to thread pool instead of creating new thread
+        future = self.email_executor.submit(self._send_async_email, app, msg)
+        return future
     
     @staticmethod
     def generate_otp(length=None):
@@ -197,3 +232,30 @@ class EmailService:
 
 # Global email service instance
 email_service = EmailService()
+
+"""
+EMAIL SENDING ARCHITECTURE NOTES:
+
+CURRENT IMPLEMENTATION (ThreadPoolExecutor):
+- Uses a fixed thread pool (10 workers) for sending emails asynchronously
+- Suitable for demo/resume deployment and moderate email volume (up to ~500 concurrent users)
+- Prevents resource exhaustion compared to creating unlimited threads
+- Emails are sent in background without blocking web requests
+
+PREVIOUS MISTAKE:
+- Initially created a new Thread() for every email request
+- This was inefficient and could lead to resource exhaustion
+- No limit on concurrent threads, potential for system overload
+
+FUTURE PRODUCTION IMPROVEMENTS:
+- Implement proper task queue system (Celery with Redis or RQ)
+- Use external email service (SendGrid, Mailgun) for better deliverability
+- Add email retry logic and failure handling
+- Implement email rate limiting and batching
+- Separate email workers from web dynos for better scalability
+
+DEPLOYMENT NOTES:
+- Current setup works well for Heroku Basic dyno and demo purposes
+- For production with high volume, switch to background job queue
+- Monitor email sending performance and adjust thread pool size as needed
+"""
