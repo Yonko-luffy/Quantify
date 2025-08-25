@@ -2,6 +2,8 @@
 
 {% block head %}
 <title>Register - Quiz App</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+
 {% endblock %}
 
 {% block body %}
@@ -10,22 +12,6 @@
     <form class="auth-form" method="post" action="{{ url_for('auth.register') }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
       <h2>Sign Up</h2>
-
-      <!-- Error messages -->
-      {% if error %}
-        <div class="alert alert-danger">{{ error }}</div>
-      {% endif %}
-
-      <!-- Flash Messages -->
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          {% for category, message in messages %}
-            <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }}">
-              {{ message }}
-            </div>
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
 
       <!-- Username Field -->
       <input type="text" 

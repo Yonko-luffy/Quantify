@@ -28,11 +28,6 @@
     border-radius: 15px;
     text-align: center;
     box-shadow: var(--shadow);
-    transition: transform 0.2s ease;
-}
-
-.stat-card:hover {
-    transform: translateY(-2px);
 }
 
 .stat-number {
@@ -71,11 +66,10 @@
     padding: 20px;
     margin-bottom: 15px;
     box-shadow: var(--shadow);
-    transition: all 0.2s ease;
+    transition: box-shadow 0.2s ease;
 }
 
 .quiz-item:hover {
-    transform: translateY(-1px);
     box-shadow: var(--shadow-hover);
 }
 
@@ -103,19 +97,7 @@
     align-items: center;
 }
 
-.btn {
-    padding: 12px 22px;
-    border: none;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 500;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    font-size: 1rem;
-    box-shadow: var(--shadow);
-}
-
+/* Page-specific button variants */
 .btn-continue {
     background: linear-gradient(135deg, #198754, #20c997);
     color: #fff;
@@ -123,7 +105,6 @@
 
 .btn-continue:hover {
     background: linear-gradient(135deg, #20c997, #198754);
-    transform: translateY(-1px);
 }
 
 .btn-view {
@@ -133,7 +114,6 @@
 
 .btn-view:hover {
     background: linear-gradient(135deg, #0056b3, #007bff);
-    transform: translateY(-1px);
 }
 
 .btn-retake {
@@ -143,7 +123,6 @@
 
 .btn-retake:hover {
     background: linear-gradient(135deg, #e0a800, #ffc107);
-    transform: translateY(-1px);
 }
 
 /* Score Display */
@@ -196,10 +175,10 @@
     border: 1px solid var(--border-light);
     border-radius: 10px;
     background: var(--background);
+    transition: border-color 0.2s ease;
 }
 
 .attempt-item:hover {
-    background: var(--card);
     border-color: var(--accent);
 }
 
@@ -295,22 +274,4 @@
     .stat-number {
         font-size: 1.8rem;
     }
-}
-
-/* Dark theme adjustments */
-.dark-theme .stat-card {
-    background: linear-gradient(135deg, #0d6efd, #6610f2);
-}
-
-.dark-theme .score-display {
-    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.4);
-}
-
-.dark-theme .latest-badge {
-    box-shadow: 0 1px 3px rgba(40, 167, 69, 0.4);
-}
-
-.dark-theme .no-quizzes {
-    background: var(--card);
-    border-color: var(--border);
 }

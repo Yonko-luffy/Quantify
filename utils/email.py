@@ -39,11 +39,11 @@ class EmailService:
         if hasattr(self, 'email_executor'):
             self.email_executor.shutdown(wait=True)
     
-    def _send_async_email(self, app, msg):
+    def _email_worker(self, app, msg):
         """
-        Send email in background thread
+        Worker function that actually sends the email via SMTP
         
-        NOTE: This method runs in the ThreadPoolExecutor, not in individual threads
+        NOTE: This method runs in the ThreadPoolExecutor worker threads
         """
         with app.app_context():
             try:
@@ -54,7 +54,7 @@ class EmailService:
     
     def send_email_async(self, msg):
         """
-        Send email asynchronously using ThreadPoolExecutor
+        Submit email to thread pool for asynchronous sending
         
         IMPROVEMENT NOTE:
         - Old approach: Created new Thread() for each email (resource intensive, no limit)
@@ -62,8 +62,8 @@ class EmailService:
         - Future: Replace with proper task queue (Celery/RQ) for production
         """
         app = current_app._get_current_object()
-        # Submit email task to thread pool instead of creating new thread
-        future = self.email_executor.submit(self._send_async_email, app, msg)
+        # Submit email task to thread pool - returns immediately
+        future = self.email_executor.submit(self._email_worker, app, msg)
         return future
     
     @staticmethod

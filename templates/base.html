@@ -4,8 +4,9 @@
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.svg') }}">
     {% block head %} {% endblock %}
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/themes.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    
+    {% block extra_css %}{% endblock %}
   </head>
 <body>
   <div class="navbar">
@@ -23,14 +24,15 @@
 
           <!-- Profile Dropdown -->
           <div class="dropdown-menu" id="profileDropdown">
-            <p>Welcome, {{ current_user.username }}</p>
-            <a href="{{ url_for('quiz.my_quizzes') }}">My Quizzes</a>
+            <div style="padding: 0.75rem 1rem; font-weight: bold; color: var(--accent); border-bottom: 1px solid var(--border);">
+              Welcome, {{ current_user.username }}
+            </div>
+            <a href="{{ url_for('quiz.my_quizzes') }}" class="dropdown-item">My Quizzes</a>
             {% if current_user.role == 'admin' %}
-              <a href="{{ url_for('admin.admin_panel') }}">Admin Panel</a> <!-- 'admin_panel' route-->
+              <a href="{{ url_for('admin.admin_panel') }}" class="dropdown-item">Admin Panel</a>
             {% endif %}
-            <a href="{{ url_for('auth.profile') }}">View Profile</a> <!-- 'profile' route-->
-            <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
-            <a href="{{ url_for('auth.logout') }}">Logout</a> <!-- 'logout' route-->
+            <a href="{{ url_for('auth.profile') }}" class="dropdown-item">View Profile</a>
+            <a href="{{ url_for('auth.logout') }}" class="dropdown-item">Logout</a>
           </div>
         </div>
       {% else %}
@@ -40,6 +42,18 @@
     </div>
   </div>
 
+  <!-- Flash Messages Container -->
+  <div class="flash-messages-container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'danger' if category == 'error' else category }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
 
   <!-- this is only used for spacing in the layout so the the content doesnot come under the nav bar -->
   <main class="page-content">

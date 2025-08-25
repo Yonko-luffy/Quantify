@@ -1,27 +1,11 @@
-:root {
-  --bg: #121212;
-  --card: #1e1e1e;
-  --text: #e0e0e0;
-  --accent: #bb86fc;
-  --hover: #3700b3;
-  --border: #333;
-}
-[data-theme="light"] {
-  --bg: #ffffff;
-  --card: #f9f9f9;
-  --text: #000000;
-  --accent: #6200ee;
-  --hover: #3700b3;
-  --border: #ddd;
-}
 body {
-  background-color: var(--bg);
-  color: var(--text);
+  background-color: #ffffff;
+  color: #000000;
   transition: background-color 0.3s, color 0.3s;
 }
 .profile-card {
-  background: var(--card);
-  color: var(--text);
+  background: #f9f9f9;
+  color: #000000;
   max-width: 400px;
   margin: 4rem auto 0 auto;
   border-radius: 18px;

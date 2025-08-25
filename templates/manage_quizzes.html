@@ -19,20 +19,11 @@
     <!-- Back to Admin Panel Link -->
     <a href="{{ url_for('admin.admin_panel') }}" class="back-btn">← Back to Admin Panel</a>
 
-    <!-- Add this error message display -->
-    {% if error %}
-    <div class="alert alert-danger">{{ error }}</div>
-    {% endif %}
-    
-    {% if success %}
-    <div class="alert alert-success">{{ success }}</div>
-    {% endif %}
-
     <!-- Quiz Creation Form -->
     <div class="quiz-create-bar">
       <form action="{{ url_for('admin.create_quiz') }}" method="post" class="quiz-create-form" autocomplete="off">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-        <input type="text" name="quiz_name" placeholder="Create a new quiz..." required />
+        <input type="text" name="quiz_name" placeholder="Create a new quiz..." value="{{ quiz_name or '' }}" required />
         <button type="submit" class="btn" title="Create Quiz">Create</button>
       </form>
     </div>

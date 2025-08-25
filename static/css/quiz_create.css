@@ -7,55 +7,60 @@
   justify-content: center;
   margin-bottom: 2.5rem;
 }
+
 .quiz-create-form {
   display: flex;
   align-items: center;
   background: var(--card);
-  border: 2px solid var(--border);
-  border-radius: 2rem;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.22);
-  padding: 0.5rem 1.5rem 0.5rem 1.2rem;
-  gap: 1.2rem;
+  border: 1px solid var(--border); /* Softer border */
+  border-radius: 16px; /* Match the card border-radius */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15); /* Slightly stronger shadow */
+  padding: 0.75rem; /* Adjust padding */
+  gap: 0.75rem; /* Adjust gap */
   min-width: 340px;
   max-width: 520px;
   width: 100%;
 }
+
 .quiz-create-form input[type="text"] {
-  background: rgba(255, 255, 255, 0.9) !important;
+  background: var(--glass) !important; /* Use glass effect for consistency */
   color: var(--text) !important;
-  border: 2px solid var(--border) !important;
-  border-radius: 1.2rem;
-  padding: 0.7rem 1.1rem;
-  font-size: 1.08rem;
+  border: 2px solid transparent !important; /* Start with transparent border */
+  border-radius: 12px; /* A slightly smaller, pleasant radius */
+  padding: 0.8rem 1.2rem;
+  font-size: 1.05rem;
   flex: 1 1 auto;
-  transition: border-color 0.2s;
+  transition: all 0.2s;
   font-weight: 500;
+  outline: none; /* Remove default outline */
 }
 
 .quiz-create-form input[type="text"]:focus {
   border-color: var(--accent) !important;
-  background: rgba(255, 255, 255, 0.95) !important;
-  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1) !important;
-  outline: none;
+  background: var(--glass-hover) !important;
+  box-shadow: none !important; /* Remove the default focus shadow */
 }
 
 .quiz-create-form input[type="text"]::placeholder {
   color: var(--text-light) !important;
   opacity: 0.8;
 }
+
 .quiz-create-form .btn {
-  background: linear-gradient(90deg, var(--accent) 60%, var(--hover) 100%);
+  background: var(--accent);
   color: #fff;
   border: none;
-  border-radius: 1.2rem;
-  padding: 0.7rem 1.5rem;
-  font-size: 1.08rem;
+  border-radius: 12px; /* Match the input field's radius */
+  padding: 0.8rem 1.8rem;
+  font-size: 1.05rem;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.10);
-  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  transition: all 0.2s;
 }
+
 .quiz-create-form .btn:hover {
-  background: linear-gradient(90deg, var(--hover) 60%, var(--accent) 100%);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  background: var(--hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }

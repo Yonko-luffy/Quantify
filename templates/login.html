@@ -2,6 +2,8 @@
 
 {% block head %}
 <title>Login - Quiz App</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+
 {% endblock %}
 
 {% block body %}
@@ -10,31 +12,6 @@
     <form class="auth-form" method="post" action="{{ url_for('auth.login') }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token else '' }}"/>
       <h2>Sign In</h2>
-
-      <!-- Error message from direct rendering -->
-      {% if error %}
-        <div class="alert alert-danger">
-          {{ error }}
-        </div>
-      {% endif %}
-
-      <!-- Flash Messages -->
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          {% for category, message in messages %}
-            <div class="alert alert-{{ 'danger' if category == 'error' else category }}">
-              {{ message }}
-            </div>
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
-
-      <!-- Success message from URL params -->
-      {% if success %}
-        <div class="alert alert-success">
-          {{ success }}
-        </div>
-      {% endif %}
 
       <!-- Username Field -->
       <input type="text" name="username" placeholder="Username" value="{{ username or '' }}" required>

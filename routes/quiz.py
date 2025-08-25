@@ -240,13 +240,16 @@ def show_feedback(quiz_id, question_id):
     if not result:
         return redirect(url_for('quiz.take_quiz', quiz_id=quiz_id, error="Answer not found for current attempt."))
     
+    # Check if this is the last question
+    next_q = QuizValidator.get_next_question(quiz_id, current_user.id)
+    is_last_question = next_q is None
+    
     return render_template('answer_feedback.html',
                          quiz=quiz,
                          question=question,
                          selected_index=result.selected_index,
                          is_correct=result.is_correct,
-                         correct_answer=question.get_correct_answer(),
-                         user_answer=question.options[result.selected_index] if result.selected_index < len(question.options) else None)
+                         is_last_question=is_last_question)
 
 
 @quiz_bp.route('/quiz/<int:quiz_id>/next', methods=['GET', 'POST'])

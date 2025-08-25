@@ -15,29 +15,11 @@
       </div>
     {% endif %}
 
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{ 'danger' if category == 'error' else category }}">
-            {{ message }}
-          </div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-
     <div class="take-quiz-container">
     <!-- Progress Header -->
     <div class="quiz-progress-header">
         <h1>{{ quiz.name }}</h1>
         <p>Question {{ question_number }} of {{ total_questions }}</p>
-        <div class="progress-bar-container">
-            <div class="progress-bar" style="width: {{ (answered_count / total_questions * 100) }}%"></div>
-        </div>
-        <p>Progress: {{ answered_count }}/{{ total_questions }} completed</p>
-        {% if progress %}
-            <div class="score-display">Current Score: {{ progress.score }} correct</div>
-        {% endif %}
     </div>
 
     <!-- Question Card -->

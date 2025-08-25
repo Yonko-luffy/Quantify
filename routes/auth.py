@@ -31,37 +31,47 @@ def register():
         password = request.form.get("password")
         confirm_password = request.form.get("confirm_password")
 
-        # Validation
+        # Validation - flash error and preserve form data
         if not username or not email or not password or not confirm_password:
-            return render_template("register.html", error="All fields are required!")
+            flash("All fields are required!", "error")
+            return render_template("register.html", username=username, email=email)
 
         if len(username) < 3:
-            return render_template("register.html", error="Username must be at least 3 characters long!")
+            flash("Username must be at least 3 characters long!", "error")
+            return render_template("register.html", username=username, email=email)
 
         if len(password) < 6:
-            return render_template("register.html", error="Password must be at least 6 characters long!")
+            flash("Password must be at least 6 characters long!", "error")
+            return render_template("register.html", username=username, email=email)
 
         if password != confirm_password:
-            return render_template("register.html", error="Passwords do not match!")
+            flash("Passwords do not match!", "error")
+            return render_template("register.html", username=username, email=email)
 
         # Check for existing username/email
         if Users.query.filter_by(username=username).first():
-            return render_template("register.html", error="Username already taken!")
+            flash("Username already taken!", "error")
+            return render_template("register.html", username=username, email=email)
 
         if Users.query.filter_by(email=email).first():
-            return render_template("register.html", error="Email already registered!")
+            flash("Email already registered!", "error")
+            return render_template("register.html", username=username, email=email)
 
+        # Success - flash message and redirect (PRG pattern)
         try:
             # Hash password and create user
             hashed_password = generate_password_hash(password, method="pbkdf2:sha256")
             new_user = Users(email=email, username=username, password=hashed_password, role="user")
             db.session.add(new_user)
             db.session.commit()
-            return redirect(url_for("auth.login", success="Account created successfully! Please log in."))
+            
+            flash("Account created successfully! Please log in.", "success")
+            return redirect(url_for("auth.login"))
         
         except Exception as e:
             db.session.rollback()
-            return render_template("register.html", error="Registration failed. Please try again!")
+            flash("Registration failed. Please try again!", "error")
+            return render_template("register.html", username=username, email=email)
 
     return render_template("register.html")
 
@@ -70,7 +80,6 @@ def register():
 @limiter.limit("5 per minute,10 per 10 minutes,20 per hour")
 def login():
     """Handle user login with CAPTCHA protection and 2FA"""
-    success_msg = request.args.get("success")
     
     if request.method == "POST":
         username = request.form.get("username", "").strip()
@@ -81,11 +90,13 @@ def login():
         if CaptchaValidator.is_captcha_enabled():
             is_captcha_valid, captcha_error = CaptchaValidator.verify_recaptcha(captcha_response)
             if not is_captcha_valid:
-                return render_template("login.html", username=username, error=captcha_error)
+                flash(captcha_error, "error")
+                return render_template("login.html", username=username)
         
-        # Input validation
+        # Input validation - preserve username on error
         if not username or not password:
-            return render_template("login.html", username=username, error="Please enter both username and password.")
+            flash("Please enter both username and password.", "error")
+            return render_template("login.html", username=username)
         
         # Check user credentials
         user = Users.query.filter_by(username=username).first()
@@ -103,9 +114,10 @@ def login():
                     flash("Please check your email for the verification code.", "info")
                     return redirect(url_for('auth.verify_2fa'))
                 else:
-                    return render_template("login.html", username=username, error=f"Failed to send verification code: {message}")
+                    flash(f"Failed to send verification code: {message}", "error")
+                    return render_template("login.html", username=username)
             else:
-                # 2FA disabled, login directly
+                # 2FA disabled, login directly - success redirect (PRG pattern)
                 login_user(user)
                 flash("Login successful!", "success")
                 
@@ -113,13 +125,15 @@ def login():
                 next_page = request.args.get('next')
                 return redirect(next_page) if next_page else redirect(url_for("quiz.index"))
         else:
-            return render_template("login.html", username=username, error="Invalid username or password!")
+            # Invalid credentials - preserve username
+            flash("Invalid username or password!", "error")
+            return render_template("login.html", username=username)
 
     # If user is already authenticated, redirect to quiz index
     if current_user.is_authenticated:
         return redirect(url_for("quiz.index"))
 
-    return render_template("login.html", success=success_msg)
+    return render_template("login.html")
 
 
 @auth_bp.route("/profile")
@@ -134,7 +148,8 @@ def profile_user(username):
     # Check if the requested user exists
     user = Users.query.filter_by(username=username).first()
     if not user:
-        return render_template("profile.html", error="User not found!")
+        flash("User not found!", "danger")
+        return redirect(url_for("quiz.index"))
     
     return render_template("profile.html", user=user, profile_owner=user)
 
@@ -153,7 +168,8 @@ def verify_2fa():
     """Handle 2FA verification"""
     # Check if user is in 2FA process
     if '2fa_user_id' not in session:
-        return render_template("login.html", error="Invalid verification session. Please login again.")
+        flash("Invalid verification session. Please login again.", "danger")
+        return redirect(url_for("auth.login"))
     
     if request.method == "POST":
         otp_code = request.form.get("otp_code", "").strip()

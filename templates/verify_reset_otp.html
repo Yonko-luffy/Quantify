@@ -22,18 +22,6 @@
           {{ error }}
         </div>
       {% endif %}
-
-      <!-- Flash Messages -->
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          {% for category, message in messages %}
-            <div class="alert alert-{{ 'danger' if category == 'error' else category }}">
-              {{ message }}
-            </div>
-          {% endfor %}
-        {% endif %}
-      {% endwith %}
-
       <!-- OTP Input Field -->
       <input type="text" 
              name="otp_code" 

@@ -80,34 +80,40 @@ def delete_user(user_id):
 def manage_quizzes():
     """Display all quizzes for management"""
     quizzes = Quiz.query.all()
-    error = request.args.get('error')
-    return render_template('manage_quizzes.html', quizzes=quizzes, error=error)
+    return render_template('manage_quizzes.html', quizzes=quizzes)
 
 
 @admin_bp.route('/quizzes/create', methods=["POST"])
 @admin_required
 def create_quiz():
     """Create a new quiz"""
-    quiz_name = request.form.get("quiz_name")
+    quiz_name = request.form.get("quiz_name", "").strip()
     quizzes = Quiz.query.all()  # Get quizzes for error rendering
     
+    # Validation - flash error and preserve form data
     if not quiz_name:
-        return render_template("manage_quizzes.html", quizzes=quizzes, error="Quiz name is required!")
+        flash("Quiz name is required!", "error")
+        return render_template("manage_quizzes.html", quizzes=quizzes, quiz_name=quiz_name)
     
     if len(quiz_name) < 3:
-        return render_template("manage_quizzes.html", quizzes=quizzes, error="Quiz name must be at least 3 characters long!")
+        flash("Quiz name must be at least 3 characters long!", "error")
+        return render_template("manage_quizzes.html", quizzes=quizzes, quiz_name=quiz_name)
     
     if Quiz.query.filter_by(name=quiz_name).first():
-        return render_template("manage_quizzes.html", quizzes=quizzes, error="Quiz with this name already exists!")
+        flash("A quiz with this name already exists!", "error")
+        return render_template("manage_quizzes.html", quizzes=quizzes, quiz_name=quiz_name)
     
+    # Success - flash message and redirect (PRG pattern)
     try:
         new_quiz = Quiz(name=quiz_name, created_by=current_user.id)
         db.session.add(new_quiz)
         db.session.commit()
+        flash("Quiz created successfully!", "success")
         return redirect(url_for("admin.edit_quiz", quiz_id=new_quiz.id))
     except Exception as e:
         db.session.rollback()
-        return render_template("manage_quizzes.html", quizzes=quizzes, error="Quiz creation failed. Please try again!")
+        flash("Quiz creation failed. Please try again!", "error")
+        return render_template("manage_quizzes.html", quizzes=quizzes, quiz_name=quiz_name)
 
 
 @admin_bp.route('/quizzes/<int:quiz_id>/edit', methods=["GET", "POST"])

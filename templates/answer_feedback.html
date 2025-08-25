@@ -5,10 +5,12 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/quiz.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/feedback.css') }}">
 {% endblock %}
+
 {% block body %}
-<div class="index-main">
-    <div class="feedback-container">
-        <h1 class="quiz-title">{{ quiz.name }}</h1>
+<div class="feedback-page-container">
+
+    <div class="feedback-content-wrapper">
+        <h1 class="quiz-title-feedback">{{ quiz.name }}</h1>
         
         <div class="quiz-card feedback-result {{ 'feedback-correct' if is_correct else 'feedback-incorrect' }}">
             <div class="feedback-icon">
@@ -17,11 +19,6 @@
             <div class="feedback-message">
                 {{ 'Correct!' if is_correct else 'Incorrect!' }}
             </div>
-            {% if is_correct %}
-                <p>Great job! You got it right.</p>
-            {% else %}
-                <p>Don't worry, keep learning!</p>
-            {% endif %}
         </div>
         
         <div class="quiz-card answer-details">
@@ -31,17 +28,12 @@
             
             <div class="answers-review">
                 {% for option in question.options %}
-                    {% set i = loop.index0 %}
-                    <div class="answer-option ">
-                        {% if i == selected_index %}
-                            <strong>Your answer:</strong> {{ option }}
-                            {% if is_correct %}
-                                ✅
-                            {% else %}
-                                ❌
-                            {% endif %}
-                        {% elif i == question.answer_index and not is_correct %}
-                            <strong>Correct answer:</strong> {{ option }} ✅
+                    <div class="answer-option 
+                        {% if loop.index0 == question.answer_index %}correct-answer{% endif %}
+                        {% if loop.index0 == selected_index and not is_correct %}your-wrong-answer{% endif %}">
+                        
+                        {% if loop.index0 == selected_index %}
+                            <strong>Your Answer:</strong> {{ option }}
                         {% else %}
                             {{ option }}
                         {% endif %}
@@ -49,26 +41,27 @@
                 {% endfor %}
             </div>
             
+            {% if question.explanation and question.explanation.strip() %}
             <div class="explanation-section">
                 <h3>Explanation</h3>
-                {% if question.explanation and question.explanation.strip() %}
                 <p class="explanation-text">{{ question.explanation }}</p>
-                {% else %}
-                <p class="explanation-text no-explanation">No explanation given.</p>
-                {% endif %}
             </div>
+            {% endif %}
         </div>
-        
-        <div class="quiz-card quiz-progress">
-            <p>Keep going! You're doing great.</p>
-        </div>
-        
+    </div>
+
+    <div class="feedback-footer">
         <form action="{{ url_for('quiz.next_question', quiz_id=quiz.id) }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <button type="submit" class="quiz-btn continue-btn">
-                Continue to Next Question →
+                {% if is_last_question %}
+                    Finish & View Results →
+                {% else %}
+                    Continue to Next Question →
+                {% endif %}
             </button>
         </form>
     </div>
+
 </div>
 {% endblock %}

@@ -148,6 +148,12 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+.question-inline.is-editing {
+  background-color: rgba(74, 144, 226, 0.05);
+  box-shadow: 0 0 0 2px var(--accent);
+  transform: translateY(-2px);
+}
+
 .questions-container-inline .question-text-edit {
   width: 100%;
   padding: 12px 15px;

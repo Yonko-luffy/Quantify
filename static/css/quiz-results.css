@@ -9,7 +9,7 @@
     text-align: center;
     padding: 40px;
     background: linear-gradient(135deg, var(--success), #20c997);
-    color: var(--text);
+    color: #ffffff;
     border-radius: 15px;
     margin-bottom: 30px;
     box-shadow: var(--shadow);
@@ -68,9 +68,9 @@
 }
 
 .stat-label {
-    color: var(--text-muted);
+    color: #4A5568;
     font-size: 1rem;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .correct-stat { color: var(--success); }
@@ -90,7 +90,7 @@
     font-size: 1.5rem;
     font-weight: bold;
     margin-bottom: 20px;
-    color: var(--text);
+    color: #1A202C;
     border-bottom: 3px solid var(--primary);
     padding-bottom: 10px;
     display: flex;
@@ -407,17 +407,4 @@
         opacity: 1;
         transform: translateY(0);
     }
-}
-
-/* Dark theme adjustments */
-.dark-theme .btn-primary {
-    box-shadow: 0 2px 8px rgba(13, 110, 253, 0.4);
-}
-
-.dark-theme .btn-success {
-    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.4);
-}
-
-.dark-theme .btn-secondary {
-    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.4);
 }
