@@ -68,7 +68,7 @@
 }
 
 .stat-label {
-    color: #4A5568;
+    color: var(--text-light);
     font-size: 1rem;
     font-weight: 600;
 }
@@ -90,7 +90,7 @@
     font-size: 1.5rem;
     font-weight: bold;
     margin-bottom: 20px;
-    color: #1A202C;
+    color: var(--text);
     border-bottom: 3px solid var(--primary);
     padding-bottom: 10px;
     display: flex;
@@ -135,7 +135,7 @@
 
 .question-number {
     background: var(--primary);
-    color: #fff;
+    color: var(--text);
     padding: 5px 12px;
     border-radius: 20px;
     font-size: 0.9rem;
@@ -164,7 +164,7 @@
 .answer-option {
     padding: 12px 15px;
     border-radius: 8px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--text-light);
     background: var(--background);
     color: var(--text);
     transition: all 0.2s ease;

@@ -117,3 +117,139 @@ class QuizProgress(db.Model):
             quiz_id=self.quiz_id
         ).count()
         return min(100, (answered / total_questions) * 100)
+
+# # ==============================================================================
+# # NEW, SCALABLE SCHEMA FOR A DYNAMIC QUIZ PLATFORM
+# # ==============================================================================
+
+# class Category(db.Model):
+#     """
+#     NEW MODEL: Organizes all questions into a structured question bank.
+#     This is the core of your randomization feature.
+#     """
+#     __tablename__ = 'categories'
+    
+#     id = db.Column(db.Integer, primary_key=True)
+#     name = db.Column(db.String(100), unique=True, nullable=False)
+#     # Allows for sub-categories, e.g., Quant -> Algebra -> Equations
+#     parent_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=True)
+    
+#     # Relationships
+#     parent = db.relationship('Category', remote_side=[id], backref='sub_categories')
+    
+#     def __repr__(self):
+#         return f'<Category {self.name}>'
+
+
+# class Question(db.Model):
+#     """
+#     Represents an individual question in the question bank.
+#     --- MAJOR CHANGE: Now linked to a Category and supports images. ---
+#     """
+#     __tablename__ = 'questions'
+    
+#     id = db.Column(db.Integer, primary_key=True)
+    
+#     # --- CHANGE: Foreign key is now to a Category ---
+#     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
+    
+#     question_text = db.Column(db.Text, nullable=False)
+#     question_image_url = db.Column(db.String(255), nullable=True) 
+
+#     # --- CHANGE: Options are now JSON to support text and images ---
+#     # Stored as [{"text": "Option A", "image_url": "..."}, ...]
+#     options = db.Column(db.JSON, nullable=False)
+    
+#     # --- CHANGE: Supports multiple correct answers ---
+#     # Stores correct answers as an array of indices, e.g., [0] or [1, 3]
+#     correct_answers = db.Column(db.ARRAY(db.Integer), nullable=False)
+#     explanation = db.Column(db.Text, nullable=True)
+    
+#     # Relationships
+#     category = db.relationship('Category', backref=db.backref('questions', lazy='dynamic'))
+
+#     def __repr__(self):
+#         return f'<Question {self.question_text[:50]}...>'
+
+
+# class Quiz(db.Model):
+#     """
+#     REDEFINED MODEL: This is now a TEMPLATE or a set of rules for a quiz.
+#     It no longer holds questions directly.
+#     """
+#     __tablename__ = 'quizzes'
+    
+#     id = db.Column(db.Integer, primary_key=True)
+#     name = db.Column(db.String(150), nullable=False)
+#     description = db.Column(db.Text, nullable=True)
+    
+#     # Defines the type, e.g., 'Community Weekly', 'Quant Practice', 'Custom User Test'
+#     quiz_type = db.Column(db.String(50), nullable=False, default='standard', index=True)
+    
+#     # --- NEW: These fields define how to build the quiz ---
+#     # The category to pull questions from (can be null for a mix)
+#     source_category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=True)
+#     number_of_questions = db.Column(db.Integer, nullable=False, default=10)
+#     time_limit_minutes = db.Column(db.Integer, nullable=True)
+    
+#     created_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    
+#     # Relationships
+#     source_category = db.relationship('Category')
+#     creator = db.relationship('Users', backref=db.backref('created_quizzes', lazy=True))
+
+
+# # Association table to link a specific attempt with its specific set of questions
+# attempt_questions = db.Table('attempt_questions',
+#     db.Column('attempt_id', db.Integer, db.ForeignKey('quiz_attempts.id'), primary_key=True),
+#     db.Column('question_id', db.Integer, db.ForeignKey('questions.id'), primary_key=True)
+# )
+
+
+# class QuizAttempt(db.Model):
+#     """
+#     NEW MODEL: Represents a user's single, unique attempt at a quiz.
+#     This is the "session" that holds the randomized questions.
+#     This model effectively replaces the old 'QuizProgress'.
+#     """
+#     __tablename__ = 'quiz_attempts'
+
+#     id = db.Column(db.Integer, primary_key=True)
+#     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+#     quiz_id = db.Column(db.Integer, db.ForeignKey('quizzes.id'), nullable=False) # The template used
+    
+#     status = db.Column(db.String(20), nullable=False, default='in_progress') # in_progress, completed
+#     score = db.Column(db.Integer, nullable=False, default=0)
+#     started_at = db.Column(db.DateTime, default=datetime.utcnow)
+#     completed_at = db.Column(db.DateTime, nullable=True)
+    
+#     # Relationships
+#     user = db.relationship('Users', backref=db.backref('quiz_attempts', lazy=True))
+#     quiz_template = db.relationship('Quiz', backref=db.backref('attempts', lazy=True))
+    
+#     # This is the list of randomly selected questions for this specific attempt
+#     questions = db.relationship('Question', secondary=attempt_questions, lazy='subquery',
+#                                 backref=db.backref('attempts', lazy=True))
+
+
+# class QuizResult(db.Model):
+#     """
+#     Stores a user's answer to a single question for a specific attempt.
+#     --- MAJOR CHANGE: Linked to a QuizAttempt and supports multiple answers. ---
+#     """
+#     __tablename__ = 'quiz_results'
+    
+#     id = db.Column(db.Integer, primary_key=True)
+#     # --- CHANGE: Now linked to the unique attempt ---
+#     attempt_id = db.Column(db.Integer, db.ForeignKey('quiz_attempts.id'), nullable=False)
+    
+#     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+#     question_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
+    
+#     # --- CHANGE: Stores multiple selected answers ---
+#     # Stores the answer(s) the user selected, e.g., [1] or [0, 2]
+#     selected_answers = db.Column(db.ARRAY(db.Integer), nullable=False)
+#     is_correct = db.Column(db.Boolean, nullable=False)
+    
+#     # Relationships
+#     attempt = db.relationship('QuizAttempt', backref=db.backref('results', lazy=True))

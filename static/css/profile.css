@@ -1,11 +1,11 @@
 body {
   background-color: #ffffff;
-  color: #000000;
+  color: var(--text);
   transition: background-color 0.3s, color 0.3s;
 }
 .profile-card {
   background: #f9f9f9;
-  color: #000000;
+  color: var(--text);
   max-width: 400px;
   margin: 4rem auto 0 auto;
   border-radius: 18px;

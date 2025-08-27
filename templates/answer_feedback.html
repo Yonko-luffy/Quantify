@@ -34,6 +34,8 @@
                         
                         {% if loop.index0 == selected_index %}
                             <strong>Your Answer:</strong> {{ option }}
+                        {% elif loop.index0 == question.answer_index %}
+                            <strong>Correct Answer:</strong> {{ option }}
                         {% else %}
                             {{ option }}
                         {% endif %}

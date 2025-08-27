@@ -118,7 +118,7 @@
 
 .btn-retake {
     background: linear-gradient(135deg, #ffc107, #e0a800);
-    color: #212529;
+    color: var(--text);
 }
 
 .btn-retake:hover {

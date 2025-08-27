@@ -157,7 +157,7 @@
 
 .btn-info {
     background: linear-gradient(135deg, #0dcaf0, #138496);
-    color: #212529;
+    color: var(--text);
     box-shadow: 0 2px 8px rgba(23, 162, 184, 0.3);
 }
 

@@ -90,7 +90,7 @@
   box-shadow: 0 0 0 3px rgba(16, 81, 155, 0.1);
 }
 .form-control::placeholder {
-  color: #888;
+  color: var(--text-muted);
 }
 
 /* reCAPTCHA widget styling */
