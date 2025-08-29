@@ -4,7 +4,7 @@ body {
   transition: background-color 0.3s, color 0.3s;
 }
 .profile-card {
-  background: #f9f9f9;
+  background: var(--card);
   color: var(--text);
   max-width: 400px;
   margin: 4rem auto 0 auto;

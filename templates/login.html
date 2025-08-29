@@ -3,21 +3,73 @@
 {% block head %}
 <title>Login - Quiz App</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+<style>
+.rate-limit-info {
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 5px;
+  padding: 15px;
+  margin-bottom: 20px;
+  color: #856404;
+}
 
+.rate-limit-info.blocked {
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+  color: #721c24;
+}
+
+.countdown-timer {
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.attempts-remaining {
+  font-size: 0.9em;
+  margin-top: 8px;
+}
+</style>
 {% endblock %}
 
 {% block body %}
 <div class="index-main">
   <div class="auth-container">
+    <!-- Rate Limit Status Display -->
+    {% if rate_limit_status and rate_limit_status.is_blocked %}
+    <div class="rate-limit-info blocked">
+      <div class="countdown-timer">
+        🔒 Account temporarily locked
+      </div>
+      <div>
+        {% if rate_limit_status.time_remaining_minutes %}
+          You can try again in <span id="countdown">{{ rate_limit_status.time_remaining_minutes }}</span> minute(s).
+        {% else %}
+          Please try again later.
+        {% endif %}
+      </div>
+      <div class="attempts-remaining">
+        Too many failed login attempts detected.
+      </div>
+    </div>
+    {% elif rate_limit_status and rate_limit_status.attempts_used > 0 %}
+    <div class="rate-limit-info">
+      <div class="attempts-remaining">
+        ⚠️ {{ rate_limit_status.attempts_remaining }} attempt(s) remaining before temporary lockout.
+      </div>
+    </div>
+    {% endif %}
+
     <form class="auth-form" method="post" action="{{ url_for('auth.login') }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token else '' }}"/>
       <h2>Sign In</h2>
 
       <!-- Username Field -->
-      <input type="text" name="username" placeholder="Username" value="{{ username or '' }}" required>
+      <input type="text" name="username" placeholder="Username" value="{{ username or '' }}" required 
+             {% if rate_limit_status and rate_limit_status.is_blocked %}disabled{% endif %}>
 
       <!-- Password Field -->
-      <input type="password" name="password" placeholder="Password" required>
+      <input type="password" name="password" placeholder="Password" required
+             {% if rate_limit_status and rate_limit_status.is_blocked %}disabled{% endif %}>
 
       <!-- reCAPTCHA Widget (Simple) -->
       {% if RECAPTCHA_ENABLED %}
@@ -27,7 +79,14 @@
       {% endif %}
 
       <!-- Submit Button -->
-      <button type="submit" class="btn">Log In</button>
+      <button type="submit" class="btn" 
+              {% if rate_limit_status and rate_limit_status.is_blocked %}disabled{% endif %}>
+        {% if rate_limit_status and rate_limit_status.is_blocked %}
+          Account Locked
+        {% else %}
+          Log In
+        {% endif %}
+      </button>
       
       <!-- Register Link -->
       <a href="{{ url_for('auth.signup') }}" class="btn secondary-btn">Register</a>
@@ -37,6 +96,40 @@
     </form>
   </div>
 </div>
+
+<!-- Countdown Timer Script -->
+{% if rate_limit_status and rate_limit_status.is_blocked and rate_limit_status.time_remaining_minutes %}
+<script>
+var timeLeft = {{ rate_limit_status.time_remaining_minutes }} * 60; // Convert to seconds
+var countdownElement = document.getElementById('countdown');
+
+function updateCountdown() {
+  var minutes = Math.floor(timeLeft / 60);
+  var seconds = timeLeft % 60;
+  
+  if (minutes > 0) {
+    countdownElement.textContent = minutes + ' minute' + (minutes !== 1 ? 's' : '');
+  } else if (seconds > 0) {
+    countdownElement.textContent = seconds + ' second' + (seconds !== 1 ? 's' : '');
+  } else {
+    countdownElement.textContent = '0 seconds';
+    // Reload page when countdown reaches zero
+    setTimeout(function() {
+      window.location.reload();
+    }, 1000);
+    return;
+  }
+  
+  timeLeft--;
+  if (timeLeft >= 0) {
+    setTimeout(updateCountdown, 1000);
+  }
+}
+
+// Start countdown immediately
+updateCountdown();
+</script>
+{% endif %}
 
 <!-- reCAPTCHA Script -->
 {% if RECAPTCHA_ENABLED %}

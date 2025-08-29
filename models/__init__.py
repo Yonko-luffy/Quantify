@@ -10,3 +10,4 @@ login_manager = LoginManager()
 from .user import Users
 from .quiz import Quiz, Questions, QuizResults, QuizProgress
 from .otp import OTPCode
+from .rate_limit import RateLimit
