@@ -69,7 +69,7 @@
 .answer-option {
   padding: 0.8rem 1rem;
   border-radius: 8px;
-  border: 2px solid transparent;
+  border: 2px solid var(--text-light);
   background: var(--glass);
   font-weight: 500;
   color: var(--text);

@@ -11,15 +11,12 @@ from flask import Flask, render_template
 
 # --- Extensions ---
 # These are add-ons for Flask that provide extra functionality.
-from flask_limiter import Limiter                      # For rate-limiting requests to prevent abuse.
-from flask_limiter.util import get_remote_address      # A helper function to get the user's IP address for rate-limiting.
-from flask_limiter.errors import RateLimitExceeded      # The specific exception raised when a rate limit is hit.
 from flask_wtf.csrf import CSRFProtect                  # Provides Cross-Site Request Forgery (CSRF) protection for our forms.
 
 # --- Local Imports ---
 # Here, we're bringing in our own code from other files in the project.
 from config import Config                               # Imports the application configuration class from config.py.
-from models import db, login_manager, Users             # Imports the database instance, login manager, and our User model.
+from models import db, login_manager, Users, RateLimit  # Imports the database instance, login manager, and our User model.
 from routes import auth_bp, admin_bp, quiz_bp           # Imports route blueprints for modular routing. This keeps our app organized.
 from utils.email import email_service                   # Import email service for OTP functionality
 
@@ -56,17 +53,6 @@ login_manager.login_view = 'auth.login'
 # This will automatically add a hidden CSRF token to our forms to prevent malicious attacks.
 csrf = CSRFProtect(app)
 
-# Initialize the rate limiter to protect our app from brute-force attacks or scraping.
-limiter = Limiter(
-    app=app,
-    # We use 'get_remote_address' to identify users by their IP address.
-    # This means limits are applied on a per-IP basis.
-    key_func=get_remote_address,
-    # We're setting the default limits to empty because we'll apply specific limits
-    # directly to the routes that need them (like the login route) using decorators.
-    default_limits=[]
-)
-
 # ==============================================================================
 # Template Context Processor
 # ==============================================================================
@@ -88,25 +74,6 @@ def inject_recaptcha_config():
         'RECAPTCHA_ENABLED': app.config.get('RECAPTCHA_ENABLED', False),
         'RECAPTCHA_OPTIONS': app.config.get('RECAPTCHA_OPTIONS', {})
     }
-
-# ==============================================================================
-# Error Handlers
-# ==============================================================================
-
-# This decorator registers a custom function to handle a specific error type.
-# In this case, we're creating a friendly response for when a user hits our rate limit.
-@app.errorhandler(RateLimitExceeded)
-def handle_rate_limit(e):
-    """
-    Custom error page for users who exceed the request rate limit.
-    Instead of showing a generic server error, we render the login page again
-    but with a specific error message, letting the user know what happened.
-    The 429 status code means "Too Many Requests".
-    """
-    cooldown = True # A flag we can use in the template to show a CAPTCHA or other UI element.
-    return render_template("login.html",
-                           error="Too many login attempts. Please complete CAPTCHA and try again.",
-                           cooldown=cooldown), 429
 
 # ==============================================================================
 # User Loader for Flask-Login

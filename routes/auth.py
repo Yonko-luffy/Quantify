@@ -2,18 +2,14 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, session
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
 
 from models import db, Users, OTPCode
 from utils.captcha import CaptchaValidator
 from utils.email import email_service
+from utils.rate_limiter import rate_limit_check, record_login_attempt
 
 # Create blueprint
 auth_bp = Blueprint("auth", __name__)
-
-# Initialize limiter for this blueprint
-limiter = Limiter(key_func=get_remote_address, default_limits=[])
 
 
 @auth_bp.route("/signup")
@@ -77,7 +73,7 @@ def register():
 
 
 @auth_bp.route("/login", methods=["GET", "POST"])
-@limiter.limit("5 per minute,10 per 10 minutes,20 per hour")
+@rate_limit_check('login', 'login.html')
 def login():
     """Handle user login with CAPTCHA protection and 2FA"""
     
@@ -102,6 +98,9 @@ def login():
         user = Users.query.filter_by(username=username).first()
 
         if user and check_password_hash(user.password, password):
+            # Record successful login attempt
+            record_login_attempt(username, success=True)
+            
             # Check if 2FA is enabled
             if current_app.config.get("TWO_FA_ENABLED", False):
                 # Send OTP email
@@ -125,9 +124,19 @@ def login():
                 next_page = request.args.get('next')
                 return redirect(next_page) if next_page else redirect(url_for("quiz.index"))
         else:
-            # Invalid credentials - preserve username
-            flash("Invalid username or password!", "error")
-            return render_template("login.html", username=username)
+            # Record failed login attempt and check if now blocked
+            is_blocked, status, message = record_login_attempt(username, success=False)
+            if is_blocked:
+                flash(message, "error")
+                return render_template("login.html", 
+                                     username=username, 
+                                     error=message,
+                                     rate_limit_status=status,
+                                     cooldown=True), 429
+            else:
+                # Show informative message with attempts remaining
+                flash(message, "error")
+                return render_template("login.html", username=username, error=message)
 
     # If user is already authenticated, redirect to quiz index
     if current_user.is_authenticated:
@@ -163,7 +172,7 @@ def logout():
 
 
 @auth_bp.route("/verify-2fa", methods=["GET", "POST"])
-@limiter.limit("3 per minute,10 per hour")
+@rate_limit_check('verify_2fa', 'verify_2fa.html')
 def verify_2fa():
     """Handle 2FA verification"""
     # Check if user is in 2FA process
@@ -206,7 +215,7 @@ def verify_2fa():
 
 
 @auth_bp.route('/forgot-password', methods=["GET", "POST"])
-@limiter.limit("3 per 10 minutes,10 per hour")
+@rate_limit_check('forgot_password', 'forgot_password.html')
 def forgot_password():
     """Handle forgot password request"""
     if not current_app.config.get('PASSWORD_RESET_ENABLED', False):
@@ -239,7 +248,7 @@ def forgot_password():
 
 
 @auth_bp.route('/verify-reset-otp', methods=["GET", "POST"])
-@limiter.limit("3 per minute,10 per hour")
+@rate_limit_check('verify_reset_otp', 'verify_reset_otp.html')
 def verify_reset_otp():
     """Verify OTP for password reset"""
     if 'reset_email' not in session:
@@ -267,7 +276,7 @@ def verify_reset_otp():
 
 
 @auth_bp.route('/reset-password', methods=["GET", "POST"])
-@limiter.limit("3 per minute,5 per hour")
+@rate_limit_check('reset_password', 'reset_password.html')
 def reset_password():
     """Handle new password setting after OTP verification"""
     if 'reset_email' not in session or not session.get('reset_verified'):
@@ -313,7 +322,7 @@ def reset_password():
 
 
 @auth_bp.route('/resend-otp', methods=["POST"])
-@limiter.limit("2 per minute,5 per hour")
+@rate_limit_check('resend_otp')
 def resend_otp():
     """Resend OTP for 2FA or password reset"""
     # Check if user is in 2FA process
