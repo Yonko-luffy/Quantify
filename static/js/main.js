@@ -56,3 +56,40 @@ document.addEventListener('DOMContentLoaded', function() {
     updateCooldown();
   }
 });
+
+// Dynamic Favicon based on browser theme
+document.addEventListener('DOMContentLoaded', function() {
+  function updateFavicon() {
+    // Check if browser supports dark mode detection
+    if (window.matchMedia) {
+      const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      
+      // Get or create favicon link element
+      let favicon = document.querySelector('link[rel="icon"]');
+      if (!favicon) {
+        favicon = document.createElement('link');
+        favicon.rel = 'icon';
+        favicon.type = 'image/svg+xml';
+        document.head.appendChild(favicon);
+      }
+      
+      // Set favicon based on theme
+      if (darkModeQuery.matches) {
+        // Dark mode - use white favicon
+        favicon.href = '/static/images/favicon_white.svg';
+      } else {
+        // Light mode - use black favicon
+        favicon.href = '/static/images/favicone_black.svg';
+      }
+    }
+  }
+  
+  // Set initial favicon
+  updateFavicon();
+  
+  // Listen for theme changes
+  if (window.matchMedia) {
+    const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    darkModeQuery.addListener(updateFavicon);
+  }
+});

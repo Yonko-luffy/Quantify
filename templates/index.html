@@ -1,16 +1,16 @@
 {% extends "base.html" %}
 
 {% block head %}
-<title>Welcome</title>
+<title>Welcome - Quantify</title>
 {% endblock %}
 
 {% block body %}
 <div class="index-main">
     <div class="quiz-section">
         {% if current_user.is_authenticated %}
-            <h2 class="quiz-title">Welcome to My Project, {{ current_user.username | upper}}</h2>
+            <h2 class="quiz-title">Welcome to Quantify, {{ current_user.username | upper}}</h2>
         {% else %}
-            <h2 class="quiz-title">Welcome to My Project</h2>
+            <h2 class="quiz-title">Welcome to Quantify</h2>
         {% endif %}
         <div class="centered-content">
             {% if current_user.is_authenticated %}

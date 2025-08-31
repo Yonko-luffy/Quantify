@@ -169,7 +169,7 @@ class EmailService:
                 
                 <p>Hello,</p>
                 
-                <p>Someone requested to sign in to your Quiz App account. Please use the verification code below to complete your login:</p>
+                <p>Someone requested to sign in to your Quantify account. Please use the verification code below to complete your login:</p>
                 
                 <div class="otp-code">{otp_code}</div>
                 
@@ -212,7 +212,7 @@ class EmailService:
                 
                 <p>Hello,</p>
                 
-                <p>You requested to reset your Quiz App password. Please use the verification code below to proceed:</p>
+                <p>You requested to reset your Quantify password. Please use the verification code below to proceed:</p>
                 
                 <div class="otp-code">{otp_code}</div>
                 
