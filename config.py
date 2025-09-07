@@ -19,6 +19,13 @@ class Config:
     
     # Disables a deprecated Flask-SQLAlchemy event system to improve performance.
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # --- Database Engine Options for Heroku ---
+    # These settings help manage database connections in a stateless environment
+    # like Heroku, preventing connection timeouts.
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_recycle": 280,
+        "pool_pre_ping": True
+    }
     
     # --- Security ---
     # A secret key used to cryptographically sign session cookies and other data.
