@@ -5,9 +5,7 @@ Flask-Login==0.6.3
 Flask-Mail==0.9.1
 Werkzeug==3.0.1
 python-dotenv==1.0.0
-livereload==2.6.3
 psycopg2-binary==2.9.7
-redis==5.0.1
 requests==2.31.0
 
 # Production Server
