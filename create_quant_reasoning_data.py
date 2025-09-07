@@ -758,12 +758,12 @@ def create_quant_reasoning_data(force_recreate=False):
         # Create admin user if it doesn't exist
         admin = Users.query.filter_by(username='admin').first()
         if not admin:
+            # This is the NEW, corrected code
             admin = Users(
                 username='admin',
                 email='admin@quantify.com',
-                password_hash=generate_password_hash('admin123'),
-                is_admin=True,
-                is_verified=True
+                password=generate_password_hash('admin123'), 
+                role='admin'                                
             )
             db.session.add(admin)
             db.session.commit()
