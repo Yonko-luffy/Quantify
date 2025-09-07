@@ -1,40 +1,199 @@
 {% extends "base.html" %}
 
-{% block head %}
-<title>Edit Question - Quantify</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='css/edit_quiz.css') }}">
-{% endblock %}
+{% block title %}Edit Question - Quantify Admin{% endblock %}
 
 {% block body %}
-<div class="admin-panel">
-  <h2>Edit Question for Quiz: {{ quiz.name }}</h2>
-  <a href="{{ url_for('admin.edit_quiz', quiz_id=quiz.id) }}" class="back-btn">← Back to Quiz</a>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-edit"></i> Edit Question</h2>
+                <a href="{{ url_for('admin.manage_questions') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Questions
+                </a>
+            </div>
 
-  {% if error %}
-    <div class="error-message">{{ error }}</div>
-  {% endif %}
-  {% if success %}
-    <div class="success-message">{{ success }}</div>
-  {% endif %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
 
-  <form method="post" class="question-edit-form">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-    <label for="question_text">Question Text:</label>
-    <input type="text" name="question_text" id="question_text" value="{{ question.question_text }}" required />
-    <div class="options-group">
-      {% for i in range(1,6) %}
-        <input type="text" name="option{{i}}" placeholder="Option {{i}}" value="{{ question.options[i-1] if question.options|length >= i else '' }}" {% if i <= 2 %}required{% endif %} />
-      {% endfor %}
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-question-circle"></i> Question Details</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin.edit_question', question_id=question.id) }}" id="questionForm">
+                        <!-- Category Selection -->
+                        <div class="mb-3">
+                            <label for="category_id" class="form-label">Category <span class="text-danger">*</span></label>
+                            <select class="form-select" id="category_id" name="category_id" required>
+                                <option value="">Select a category...</option>
+                                {% for category in categories %}
+                                    <option value="{{ category.id }}" 
+                                            {% if (form_data and form_data.category_id|string == category.id|string) or (not form_data and question.category_id == category.id) %}selected{% endif %}>
+                                        {{ category.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Question Text -->
+                        <div class="mb-3">
+                            <label for="question_text" class="form-label">Question Text <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="question_text" name="question_text" rows="3" 
+                                      required maxlength="500" placeholder="Enter your question here...">{% if form_data %}{{ form_data.question_text }}{% else %}{{ question.question_text }}{% endif %}</textarea>
+                            <div class="form-text">Maximum 500 characters. Be clear and specific.</div>
+                        </div>
+
+                        <!-- Answer Options -->
+                        <div class="mb-3">
+                            <label class="form-label">Answer Options <span class="text-danger">*</span></label>
+                            <div id="optionsContainer">
+                                {% set current_options = options_data if options_data else [] %}
+                                {% for i in range(1, 6) %}
+                                    {% set option_text = '' %}
+                                    {% set is_correct = false %}
+                                    
+                                    {% if form_data %}
+                                        {% set option_text = form_data.get('option_' + i|string, '') %}
+                                        {% set is_correct = form_data.get('correct_' + (i-1)|string) %}
+                                    {% elif current_options and (i-1) < current_options|length %}
+                                        {% set option_text = current_options[i-1].text %}
+                                        {% set is_correct = (i-1) in question.correct_answers %}
+                                    {% endif %}
+                                    
+                                    <div class="option-row mb-2" id="optionRow{{ i }}" 
+                                         {% if not option_text and i > 2 %}style="display: none;"{% endif %}>
+                                        <div class="input-group">
+                                            <span class="input-group-text">{{ i }}</span>
+                                            <input type="text" class="form-control option-input" 
+                                                   name="option_{{ i }}" id="option_{{ i }}" 
+                                                   placeholder="Option {{ i }}..." maxlength="255"
+                                                   {% if i <= 2 %}required{% endif %}
+                                                   value="{{ option_text }}">
+                                            <div class="input-group-text">
+                                                <input class="form-check-input correct-checkbox" type="checkbox" 
+                                                       name="correct_{{ i-1 }}" id="correct_{{ i-1 }}" 
+                                                       title="Mark as correct answer"
+                                                       {% if is_correct %}checked{% endif %}>
+                                                <label class="form-check-label ms-1" for="correct_{{ i-1 }}">
+                                                    Correct
+                                                </label>
+                                            </div>
+                                            {% if i > 2 %}
+                                                <button type="button" class="btn btn-outline-danger remove-option" 
+                                                        onclick="removeOption({{ i }})">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="addOption()" id="addOptionBtn">
+                                <i class="fas fa-plus"></i> Add Option
+                            </button>
+                            <div class="form-text">
+                                At least 2 options required. Check the box next to correct answers. Multiple correct answers are supported.
+                            </div>
+                        </div>
+
+                        <!-- Explanation (Optional) -->
+                        <div class="mb-3">
+                            <label for="explanation" class="form-label">Explanation <span class="text-muted">(Optional)</span></label>
+                            <textarea class="form-control" id="explanation" name="explanation" rows="2" 
+                                      maxlength="1000" placeholder="Provide an explanation for the correct answer...">{% if form_data %}{{ form_data.explanation }}{% else %}{{ question.explanation or '' }}{% endif %}</textarea>
+                            <div class="form-text">Help users understand why this is the correct answer (max 1000 characters).</div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin.manage_questions') }}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-success" id="submitBtn">
+                                <i class="fas fa-save"></i> Update Question
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-    <label for="answer_index">Correct Option (0-based):</label>
-    <select name="answer_index" id="answer_index" required>
-      {% for i in range(question.options|length) %}
-        <option value="{{i}}" {% if i == question.answer_index %}selected{% endif %}>Option {{i+1}}</option>
-      {% endfor %}
-    </select>
-    <label for="explanation">Explanation (optional):</label>
-    <textarea name="explanation" id="explanation" placeholder="Explain why this answer is correct and others are wrong..." rows="3" style="width: 100%; margin-bottom: 1em; padding: 8px; border: 1px solid var(--border); border-radius: 4px;">{{ question.explanation if question.explanation else '' }}</textarea>
-    <button type="submit" class="btn">Update Question</button>
-  </form>
 </div>
+
+<script>
+let optionCount = 5;
+
+function addOption() {
+    // Find the first hidden option row and show it
+    for (let i = 3; i <= 5; i++) {
+        const row = document.getElementById(`optionRow${i}`);
+        if (row && row.style.display === 'none') {
+            row.style.display = 'block';
+            row.querySelector('.option-input').required = false;
+            break;
+        }
+    }
+    
+    // Hide add button if all options are visible
+    const visibleRows = document.querySelectorAll('.option-row:not([style*="display: none"])');
+    if (visibleRows.length >= 5) {
+        document.getElementById('addOptionBtn').style.display = 'none';
+    }
+}
+
+function removeOption(optionNum) {
+    const optionRow = document.getElementById(`optionRow${optionNum}`);
+    if (optionRow && optionNum > 2) {
+        optionRow.style.display = 'none';
+        optionRow.querySelector('.option-input').value = '';
+        optionRow.querySelector('.correct-checkbox').checked = false;
+        document.getElementById('addOptionBtn').style.display = 'inline-block';
+    }
+}
+
+// Form validation
+document.getElementById('questionForm').addEventListener('submit', function(e) {
+    const optionInputs = document.querySelectorAll('.option-input');
+    const correctCheckboxes = document.querySelectorAll('.correct-checkbox');
+    
+    // Check if at least 2 options are filled
+    let filledOptions = 0;
+    optionInputs.forEach(input => {
+        if (input.value.trim() && input.closest('.option-row').style.display !== 'none') {
+            filledOptions++;
+        }
+    });
+    
+    if (filledOptions < 2) {
+        e.preventDefault();
+        alert('Please provide at least 2 answer options.');
+        return;
+    }
+    
+    // Check if at least one correct answer is selected
+    let hasCorrectAnswer = false;
+    correctCheckboxes.forEach((checkbox, index) => {
+        const row = checkbox.closest('.option-row');
+        const input = row.querySelector('.option-input');
+        if (checkbox.checked && input.value.trim() && row.style.display !== 'none') {
+            hasCorrectAnswer = true;
+        }
+    });
+    
+    if (!hasCorrectAnswer) {
+        e.preventDefault();
+        alert('Please select at least one correct answer.');
+        return;
+    }
+});
+</script>
 {% endblock %}

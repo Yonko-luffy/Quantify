@@ -10,14 +10,16 @@
 <div class="feedback-page-container">
 
     <div class="feedback-content-wrapper">
-        <h1 class="quiz-title-feedback">{{ quiz.name }}</h1>
-        
-        <div class="quiz-card feedback-result {{ 'feedback-correct' if is_correct else 'feedback-incorrect' }}">
-            <div class="feedback-icon">
-                {{ '✅' if is_correct else '❌' }}
+        <!-- Compact Progress Header -->
+        <div class="compact-feedback-header">
+            <div class="progress-info">
+                <h2>{{ quiz.name }}</h2>
+                <p>Question {{ question_number }} of {{ total_questions }}</p>
+                <p class="progress-detail">{{ answered_count }} answered • {{ total_questions - answered_count }} remaining</p>
             </div>
-            <div class="feedback-message">
-                {{ 'Correct!' if is_correct else 'Incorrect!' }}
+            <div class="result-indicator {{ 'result-correct' if result.is_correct else 'result-incorrect' }}">
+                {{ '✅' if result.is_correct else '❌' }}
+                <span>{{ 'Correct!' if result.is_correct else 'Incorrect!' }}</span>
             </div>
         </div>
         
@@ -27,17 +29,20 @@
             </div>
             
             <div class="answers-review">
-                {% for option in question.options %}
+                {% for option in options_data %}
+                    {% set is_user_selected = loop.index0 in result.selected_answers %}
+                    {% set is_correct_answer = loop.index0 in question.correct_answers %}
+                    
                     <div class="answer-option 
-                        {% if loop.index0 == question.answer_index %}correct-answer{% endif %}
-                        {% if loop.index0 == selected_index and not is_correct %}your-wrong-answer{% endif %}">
+                        {% if is_correct_answer %}correct-answer{% endif %}
+                        {% if is_user_selected and not is_correct_answer %}your-wrong-answer{% endif %}">
                         
-                        {% if loop.index0 == selected_index %}
-                            <strong>Your Answer:</strong> {{ option }}
-                        {% elif loop.index0 == question.answer_index %}
-                            <strong>Correct Answer:</strong> {{ option }}
+                        {% if is_user_selected %}
+                            <strong>Your Answer:</strong> {{ option.text if option.text is defined else option }}
+                        {% elif is_correct_answer %}
+                            <strong>Correct Answer:</strong> {{ option.text if option.text is defined else option }}
                         {% else %}
-                            {{ option }}
+                            {{ option.text if option.text is defined else option }}
                         {% endif %}
                     </div>
                 {% endfor %}
@@ -53,7 +58,7 @@
     </div>
 
     <div class="feedback-footer">
-        <form action="{{ url_for('quiz.next_question', quiz_id=quiz.id) }}" method="post">
+        <form action="{{ url_for('quiz.next_question', attempt_id=attempt.id) }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <button type="submit" class="quiz-btn continue-btn">
                 {% if is_last_question %}

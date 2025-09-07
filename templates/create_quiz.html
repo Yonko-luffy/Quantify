@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+
+{% block title %}Create Quiz - Quantify Admin{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-plus-circle"></i> Create New Quiz</h2>
+                <a href="{{ url_for('admin.manage_quizzes') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Quizzes
+                </a>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-clipboard-list"></i> Quiz Configuration</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin.create_quiz') }}" id="quizForm">
+                        <!-- Quiz Title -->
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Quiz Title <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="title" name="title" 
+                                   value="{{ form_data.title if form_data else '' }}" 
+                                   required maxlength="200" placeholder="Enter quiz title...">
+                            <div class="form-text">Maximum 200 characters. Choose a clear, descriptive title.</div>
+                        </div>
+
+                        <!-- Quiz Description -->
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description <span class="text-muted">(Optional)</span></label>
+                            <textarea class="form-control" id="description" name="description" rows="3" 
+                                      maxlength="1000" placeholder="Describe what this quiz covers...">{{ form_data.description if form_data else '' }}</textarea>
+                            <div class="form-text">Explain the purpose and content of this quiz (max 1000 characters).</div>
+                        </div>
+
+                        <!-- Question Selection Method -->
+                        <div class="mb-3">
+                            <label class="form-label">Question Selection Method <span class="text-danger">*</span></label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="selection_method" id="manual" 
+                                       value="manual" {% if not form_data or form_data.selection_method == 'manual' %}checked{% endif %}>
+                                <label class="form-check-label" for="manual">
+                                    <strong>Manual Selection</strong> - Choose specific questions
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="selection_method" id="random" 
+                                       value="random" {% if form_data and form_data.selection_method == 'random' %}checked{% endif %}>
+                                <label class="form-check-label" for="random">
+                                    <strong>Random Selection</strong> - Pick questions randomly from categories
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Manual Question Selection -->
+                        <div id="manualSection" class="mb-3">
+                            <label class="form-label">Select Questions <span class="text-danger">*</span></label>
+                            <div class="card">
+                                <div class="card-body">
+                                    <!-- Category Filter -->
+                                    <div class="mb-3">
+                                        <label for="categoryFilter" class="form-label">Filter by Category:</label>
+                                        <select class="form-select" id="categoryFilter" onchange="filterQuestions()">
+                                            <option value="">All Categories</option>
+                                            {% for category in categories %}
+                                                <option value="{{ category.id }}">{{ category.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    
+                                    <!-- Question List -->
+                                    <div class="row" id="questionsList">
+                                        {% for question in questions %}
+                                            <div class="col-md-6 mb-2 question-item" data-category="{{ question.category_id }}">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" 
+                                                           name="selected_questions" value="{{ question.id }}" 
+                                                           id="question_{{ question.id }}"
+                                                           {% if form_data and form_data.selected_questions and question.id|string in form_data.selected_questions %}checked{% endif %}>
+                                                    <label class="form-check-label" for="question_{{ question.id }}">
+                                                        <small class="text-muted">{{ question.category.name }}</small><br>
+                                                        {{ question.question_text[:80] }}{% if question.question_text|length > 80 %}...{% endif %}
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    
+                                    {% if not questions %}
+                                        <div class="text-center text-muted">
+                                            <i class="fas fa-info-circle"></i> No questions available. 
+                                            <a href="{{ url_for('admin.create_question') }}">Create some questions first</a>.
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Random Selection Configuration -->
+                        <div id="randomSection" class="mb-3" style="display: none;">
+                            <label class="form-label">Random Selection Configuration</label>
+                            <div class="card">
+                                <div class="card-body">
+                                    <!-- Total Questions -->
+                                    <div class="mb-3">
+                                        <label for="total_questions" class="form-label">Total Questions <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="total_questions" name="total_questions" 
+                                               min="1" max="50" value="{{ form_data.total_questions if form_data else '10' }}">
+                                        <div class="form-text">Number of questions to include in the quiz (1-50).</div>
+                                    </div>
+                                    
+                                    <!-- Category Distribution -->
+                                    <div class="mb-3">
+                                        <label class="form-label">Category Distribution</label>
+                                        {% for category in categories %}
+                                            <div class="row mb-2">
+                                                <div class="col-8">
+                                                    <label class="form-label">{{ category.name }}</label>
+                                                    <small class="text-muted">({{ category.questions|length }} questions available)</small>
+                                                </div>
+                                                <div class="col-4">
+                                                    <input type="number" class="form-control" 
+                                                           name="category_{{ category.id }}" 
+                                                           min="0" max="{{ category.questions|length }}" 
+                                                           value="{{ form_data.get('category_' + category.id|string, 0) if form_data else 0 }}"
+                                                           placeholder="0">
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                        <div class="form-text">Specify how many questions from each category. Leave 0 to exclude a category.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quiz Settings -->
+                        <div class="mb-3">
+                            <label class="form-label">Quiz Settings</label>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="time_limit" class="form-label">Time Limit (minutes) <span class="text-muted">(Optional)</span></label>
+                                                <input type="number" class="form-control" id="time_limit" name="time_limit" 
+                                                       min="1" max="300" value="{{ form_data.time_limit if form_data else '' }}"
+                                                       placeholder="No time limit">
+                                                <div class="form-text">Leave empty for no time limit.</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label for="max_attempts" class="form-label">Maximum Attempts <span class="text-muted">(Optional)</span></label>
+                                                <input type="number" class="form-control" id="max_attempts" name="max_attempts" 
+                                                       min="1" max="10" value="{{ form_data.max_attempts if form_data else '' }}"
+                                                       placeholder="Unlimited">
+                                                <div class="form-text">Leave empty for unlimited attempts.</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="shuffle_questions" 
+                                               name="shuffle_questions" value="1"
+                                               {% if not form_data or form_data.shuffle_questions %}checked{% endif %}>
+                                        <label class="form-check-label" for="shuffle_questions">
+                                            Shuffle Questions - Present questions in random order
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="shuffle_options" 
+                                               name="shuffle_options" value="1"
+                                               {% if not form_data or form_data.shuffle_options %}checked{% endif %}>
+                                        <label class="form-check-label" for="shuffle_options">
+                                            Shuffle Options - Randomize answer option order
+                                        </label>
+                                    </div>
+                                    
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="show_correct_answers" 
+                                               name="show_correct_answers" value="1"
+                                               {% if not form_data or form_data.show_correct_answers %}checked{% endif %}>
+                                        <label class="form-check-label" for="show_correct_answers">
+                                            Show Correct Answers - Display answers after quiz completion
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin.manage_quizzes') }}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="submitBtn">
+                                <i class="fas fa-save"></i> Create Quiz
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Toggle between manual and random selection
+document.querySelectorAll('input[name="selection_method"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const manualSection = document.getElementById('manualSection');
+        const randomSection = document.getElementById('randomSection');
+        
+        if (this.value === 'manual') {
+            manualSection.style.display = 'block';
+            randomSection.style.display = 'none';
+        } else {
+            manualSection.style.display = 'none';
+            randomSection.style.display = 'block';
+        }
+    });
+});
+
+// Filter questions by category
+function filterQuestions() {
+    const categoryFilter = document.getElementById('categoryFilter');
+    const selectedCategory = categoryFilter.value;
+    const questionItems = document.querySelectorAll('.question-item');
+    
+    questionItems.forEach(item => {
+        if (!selectedCategory || item.dataset.category === selectedCategory) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+// Form validation
+document.getElementById('quizForm').addEventListener('submit', function(e) {
+    const selectionMethod = document.querySelector('input[name="selection_method"]:checked').value;
+    
+    if (selectionMethod === 'manual') {
+        // Check if at least one question is selected
+        const selectedQuestions = document.querySelectorAll('input[name="selected_questions"]:checked');
+        if (selectedQuestions.length === 0) {
+            e.preventDefault();
+            alert('Please select at least one question for the quiz.');
+            return;
+        }
+    } else {
+        // Check if random configuration is valid
+        const totalQuestions = parseInt(document.getElementById('total_questions').value) || 0;
+        if (totalQuestions <= 0) {
+            e.preventDefault();
+            alert('Please specify the total number of questions for random selection.');
+            return;
+        }
+        
+        // Check if category distribution adds up correctly
+        let categoryTotal = 0;
+        document.querySelectorAll('input[name^="category_"]').forEach(input => {
+            categoryTotal += parseInt(input.value) || 0;
+        });
+        
+        if (categoryTotal !== totalQuestions) {
+            e.preventDefault();
+            alert(`Category distribution (${categoryTotal}) must equal total questions (${totalQuestions}).`);
+            return;
+        }
+    }
+});
+</script>
+{% endblock %}

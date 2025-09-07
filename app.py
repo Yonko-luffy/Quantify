@@ -7,6 +7,7 @@
 # --- Core Flask Imports ---
 # We're importing the main Flask class to create our application instance,
 # and render_template to serve HTML files to the user.
+import os
 from flask import Flask, render_template
 
 # --- Extensions ---
@@ -15,7 +16,7 @@ from flask_wtf.csrf import CSRFProtect                  # Provides Cross-Site Re
 
 # --- Local Imports ---
 # Here, we're bringing in our own code from other files in the project.
-from config import Config                               # Imports the application configuration class from config.py.
+from config import config_by_name                       # Imports the application configuration classes from config.py.
 from models import db, login_manager, Users, RateLimit  # Imports the database instance, login manager, and our User model.
 from routes import auth_bp, admin_bp, quiz_bp           # Imports route blueprints for modular routing. This keeps our app organized.
 from utils.email import email_service                   # Import email service for OTP functionality
@@ -24,95 +25,97 @@ from utils.email import email_service                   # Import email service f
 # Application Setup & Configuration
 # ==============================================================================
 
-# Initialize the core Flask application.
-# '__name__' is a special Python variable that gives Flask the path to the current module.
-# This helps Flask find resources like templates and static files.
-app = Flask(__name__)
-
-# Load configuration settings from the Config object we imported from config.py.
-# This is great practice because it keeps our secret keys and settings
-# separate from our application logic.
-app.config.from_object(Config)
+def create_app(config_name='default'):
+    """Application factory pattern for creating Flask app with specific configuration"""
+    # Initialize the core Flask application.
+    app = Flask(__name__)
+    
+    # Load configuration based on environment
+    config_name = os.environ.get('FLASK_ENV', config_name)
+    app.config.from_object(config_by_name.get(config_name, config_by_name['default']))
+    
+    # Initialize extensions with app
+    db.init_app(app)
+    login_manager.init_app(app)
+    email_service.init_app(app)
+    
+    # Configure Flask-Login
+    login_manager.login_view = 'auth.login'
+    
+    # Initialize CSRF protection
+    csrf = CSRFProtect(app)
+    
+    # Register blueprints
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(admin_bp)
+    app.register_blueprint(quiz_bp)
+    
+    # Template context processor
+    @app.context_processor
+    def inject_recaptcha_config():
+        """Injects reCAPTCHA configuration into all Jinja2 templates."""
+        return {
+            'RECAPTCHA_PUBLIC_KEY': app.config.get('RECAPTCHA_PUBLIC_KEY'),
+            'RECAPTCHA_ENABLED': app.config.get('RECAPTCHA_ENABLED', False),
+            'RECAPTCHA_OPTIONS': app.config.get('RECAPTCHA_OPTIONS', {})
+        }
+    
+    # User loader for Flask-Login
+    @login_manager.user_loader
+    def load_user(user_id):
+        """Flask-Login calls this function to get the current user object."""
+        return db.session.get(Users, int(user_id))
+    
+    # Database initialization
+    with app.app_context():
+        db.create_all()
+        
+        # Auto-create sample quiz data if none exists
+        from models import Category, Question, Quiz
+        try:
+            # Check specifically for sample quiz data (not all quiz data)
+            sample_categories = [
+                "Numerical Ability", "Logical Reasoning", "Data Interpretation", 
+                "Analytical Reasoning", "Mathematical Operations"
+            ]
+            
+            existing_sample_categories = Category.query.filter(
+                Category.name.in_(sample_categories)
+            ).count()
+            
+            sample_quiz_names = [
+                "Numerical Aptitude Foundation", "Logical Reasoning Mastery", 
+                "Complete Quantitative Aptitude"
+            ]
+            
+            existing_sample_quizzes = Quiz.query.filter(
+                Quiz.name.in_(sample_quiz_names)
+            ).count()
+            
+            # Only create sample data if we don't have the core sample quizzes
+            sample_data_exists = (existing_sample_categories >= 3 and existing_sample_quizzes >= 2)
+            
+            total_categories = Category.query.count()
+            total_questions = Question.query.count()
+            total_quizzes = Quiz.query.count()
+            
+            if not sample_data_exists:
+                print("📝 No sample quiz data found. Creating sample quantitative and reasoning quizzes...")
+                from create_quant_reasoning_data import create_quant_reasoning_data
+                create_quant_reasoning_data(force_recreate=False)
+            else:
+                print(f"✅ Sample quiz data exists. Total: {total_categories} categories, {total_questions} questions, {total_quizzes} quizzes")
+        except Exception as e:
+            print(f"Note: Could not check/create sample data: {e}")
+    
+    return app
 
 # ==============================================================================
-# Initialize Extensions
+# Development Server and Application Instance
 # ==============================================================================
 
-# Now we'll connect the extensions we imported to our Flask app instance.
-# The 'init_app' pattern is used to bind an extension to a specific app.
-db.init_app(app)
-login_manager.init_app(app)
-email_service.init_app(app)  # Initialize email service for OTP functionality
-
-# This tells Flask-Login where to redirect users if they try to access a page
-# that requires them to be logged in. 'auth.login' refers to the 'login' function
-# inside the 'auth_bp' blueprint.
-login_manager.login_view = 'auth.login'
-
-# Initialize CSRF protection for the entire application.
-# This will automatically add a hidden CSRF token to our forms to prevent malicious attacks.
-csrf = CSRFProtect(app)
-
-# ==============================================================================
-# Template Context Processor
-# ==============================================================================
-
-# A context processor is a Flask feature that runs before a template is rendered.
-# It's used to inject variables automatically into the context of every template.
-@app.context_processor
-def inject_recaptcha_config():
-    """
-    Injects reCAPTCHA configuration into all Jinja2 templates.
-    This is super useful because it makes the public key and other settings
-    globally available in the front-end without having to pass them from
-    every single route that renders a template. It keeps our route functions clean.
-    """
-    # This dictionary will be available in all our templates.
-    # For example, in a template, we can now just use {{ RECAPTCHA_PUBLIC_KEY }}.
-    return {
-        'RECAPTCHA_PUBLIC_KEY': app.config.get('RECAPTCHA_PUBLIC_KEY'),
-        'RECAPTCHA_ENABLED': app.config.get('RECAPTCHA_ENABLED', False),
-        'RECAPTCHA_OPTIONS': app.config.get('RECAPTCHA_OPTIONS', {})
-    }
-
-# ==============================================================================
-# User Loader for Flask-Login
-# ==============================================================================
-
-# This is a required function for Flask-Login. It's used to reload the user
-# object from the user ID stored in the session cookie.
-@login_manager.user_loader
-def load_user(user_id):
-    """
-    Flask-Login calls this function on every request for a logged-in user
-    to get the current user object. It takes the user ID from the session
-    and uses it to query the database.
-    """
-    # 'db.session.get' is an efficient way to fetch an object by its primary key.
-    return db.session.get(Users, int(user_id))
-
-# ==============================================================================
-# Register Route Blueprints
-# ==============================================================================
-
-# Blueprints are Flask's way of organizing an application into smaller, reusable parts.
-# Instead of having all our routes in this one file, we've split them into logical
-# groups (authentication, admin, quiz) and now we're registering them with the app.
-app.register_blueprint(auth_bp)
-app.register_blueprint(admin_bp)
-app.register_blueprint(quiz_bp)
-
-# ==============================================================================
-# Database Initialization
-# ==============================================================================
-
-# The 'app_context' is necessary here because SQLAlchemy needs to know about the
-# application's configuration (like the database URI) to connect to the database.
-with app.app_context():
-    # This command looks at all the models we've defined (like the 'Users' model)
-    # and creates the corresponding tables in the database if they don't already exist.
-    # It's safe to run this every time the app starts.
-    db.create_all()
+# Create the application instance
+app = create_app()
 
 # ==============================================================================
 # Development Server Entry Point

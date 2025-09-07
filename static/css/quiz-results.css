@@ -206,6 +206,54 @@
     font-weight: 500;
 }
 
+/* Explanation Section Styling */
+.explanation-section {
+    margin-top: 15px;
+    padding: 15px;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 69, 219, 0.1));
+    border-left: 4px solid var(--accent);
+    border-radius: 8px;
+    display: none; /* Hidden by default */
+}
+
+.explanation-section h4 {
+    margin: 0 0 10px 0;
+    color: var(--accent);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.explanation-text {
+    color: var(--text);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Toggle Button Styling */
+.explanation-toggle {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.explanation-toggle .toggle-icon {
+    transition: transform 0.3s ease;
+}
+
+.explanation-toggle.active .toggle-icon {
+    transform: rotate(180deg);
+}
+
 .action-buttons {
     display: flex;
     gap: 15px;

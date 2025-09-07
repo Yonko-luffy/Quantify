@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome - Quantify{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>Welcome to Quantify</h1>
+    
+    <!-- DEBUG SECTION -->
+    <div style="background: yellow; padding: 10px; margin: 10px 0;">
+        <h3>DEBUG INFO:</h3>
+        <p>Quizzes: {{ quizzes|length if quizzes else 'None' }}</p>
+        <p>Categories: {{ categories|length if categories else 'None' }}</p>
+        <p>User: {{ current_user.username if current_user.is_authenticated else 'Not logged in' }}</p>
+    </div>
+    
+    <!-- QUIZZES SECTION -->
+    {% if quizzes %}
+        <h2>Available Quizzes ({{ quizzes|length }})</h2>
+        {% for quiz in quizzes %}
+            <div style="border: 2px solid red; padding: 15px; margin: 10px 0; background: white;">
+                <h3>{{ quiz.name }}</h3>
+                <p><strong>Description:</strong> {{ quiz.description or 'No description' }}</p>
+                <p><strong>Questions:</strong> {{ quiz.number_of_questions }}</p>
+                <p><strong>Time Limit:</strong> {{ quiz.time_limit_minutes or 'No limit' }} minutes</p>
+                <p><strong>Categories:</strong> 
+                    {% for cat in quiz.source_categories %}
+                        {{ cat.name }}{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                </p>
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('quiz.quiz_detail', quiz_id=quiz.id) }}" style="background: blue; color: white; padding: 10px; text-decoration: none;">
+                        Start Quiz
+                    </a>
+                {% else %}
+                    <p><a href="{{ url_for('auth.login') }}">Login to take quiz</a></p>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <div style="background: orange; padding: 20px; margin: 10px 0;">
+            <h3>No quizzes found!</h3>
+            <p>This means either there are no quizzes in the database or they are all archived.</p>
+        </div>
+    {% endif %}
+    
+    <!-- CATEGORIES SECTION -->
+    {% if categories %}
+        <h2>Categories ({{ categories|length }})</h2>
+        <ul>
+            {% for category in categories %}
+                <li>{{ category.name }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>
+{% endblock %}

@@ -12,22 +12,6 @@
   font-weight: 700;
 }
 
-.admin-panel a.back-btn {
-  display: inline-block;
-  margin-bottom: 20px;
-  padding: 8px 16px;
-  background-color: #10519b;
-  color: white;
-  text-decoration: none;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-  font-size: 14px;
-}
-
-.admin-panel a.back-btn:hover {
-  background-color: #5a6268;
-}
-
 /* Add transparent container for content below back button */
 .edit-quiz-container {
   background: rgba(255, 255, 255, 0.2);

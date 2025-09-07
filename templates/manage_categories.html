@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Categories - Quantify Admin{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-tags"></i> Manage Categories</h2>
+                <a href="{{ url_for('admin.admin_panel') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Admin Panel
+                </a>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Add New Category -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-plus"></i> Add New Category</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin.create_category') }}">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" name="category_name" 
+                                       placeholder="Enter category name..." required maxlength="100">
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-plus"></i> Create Category
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Categories List -->
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-list"></i> Existing Categories</h5>
+                </div>
+                <div class="card-body">
+                    {% if categories %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Category Name</th>
+                                        <th>Questions</th>
+                                        <th>Created</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for category in categories %}
+                                    <tr>
+                                        <td>{{ category.id }}</td>
+                                        <td>
+                                            <strong>{{ category.name }}</strong>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">{{ category.question_count }} questions</span>
+                                        </td>
+                                        <td>
+                                            {% if category.created_at %}
+                                                {{ category.created_at.strftime('%Y-%m-%d') }}
+                                            {% else %}
+                                                <em>N/A</em>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <!-- Edit Category Button -->
+                                            <button type="button" class="btn btn-sm btn-outline-primary" 
+                                                    data-bs-toggle="modal" data-bs-target="#editModal{{ category.id }}">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </button>
+                                            
+                                            <!-- Delete Category Button -->
+                                            {% if category.question_count == 0 %}
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    data-bs-toggle="modal" data-bs-target="#deleteModal{{ category.id }}">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                            {% else %}
+                                            <button type="button" class="btn btn-sm btn-secondary" disabled title="Cannot delete category with questions">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                            {% endif %}
+                                            
+                                            <!-- View Questions -->
+                                            <a href="{{ url_for('admin.manage_questions', category_id=category.id) }}" 
+                                               class="btn btn-sm btn-outline-info">
+                                                <i class="fas fa-eye"></i> Questions
+                                            </a>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Edit Modal -->
+                                    <div class="modal fade" id="editModal{{ category.id }}" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Edit Category</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <form method="POST" action="{{ url_for('admin.edit_category', category_id=category.id) }}">
+                                                    <div class="modal-body">
+                                                        <div class="mb-3">
+                                                            <label for="categoryName{{ category.id }}" class="form-label">Category Name</label>
+                                                            <input type="text" class="form-control" id="categoryName{{ category.id }}" 
+                                                                   name="category_name" value="{{ category.name }}" required maxlength="100">
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Delete Modal -->
+                                    <div class="modal fade" id="deleteModal{{ category.id }}" tabindex="-1">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Delete Category</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <p>Are you sure you want to delete the category <strong>"{{ category.name }}"</strong>?</p>
+                                                    <p class="text-muted">This action cannot be undone.</p>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <form method="POST" action="{{ url_for('admin.delete_category', category_id=category.id) }}" style="display: inline;">
+                                                        <button type="submit" class="btn btn-danger">Delete Category</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-tags fa-3x text-muted mb-3"></i>
+                            <h5>No Categories Found</h5>
+                            <p class="text-muted">Create your first category to start organizing questions.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-question-circle fa-2x text-primary mb-2"></i>
+                            <h6>Manage Questions</h6>
+                            <p class="text-muted small">Add, edit, and organize quiz questions</p>
+                            <a href="{{ url_for('admin.manage_questions') }}" class="btn btn-primary btn-sm">
+                                Go to Questions
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-clipboard-list fa-2x text-success mb-2"></i>
+                            <h6>Manage Quizzes</h6>
+                            <p class="text-muted small">Create and manage quiz templates</p>
+                            <a href="{{ url_for('admin.manage_quizzes') }}" class="btn btn-success btn-sm">
+                                Go to Quizzes
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

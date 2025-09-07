@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+
+{% block title %}Create Question - Quantify Admin{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+.create-question-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.page-header h1 {
+    color: white;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.page-header p {
+    color: rgba(255,255,255,0.9);
+    margin-bottom: 1.5rem;
+}
+
+.form-section {
+    margin-bottom: 2rem;
+}
+
+.form-section h3 {
+    color: var(--accent);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    color: var(--text);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    color: var(--text);
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: rgba(255,255,255,0.15);
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.option-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.option-input {
+    flex: 1;
+}
+
+.checkbox-custom {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.option-label {
+    font-weight: 600;
+    color: var(--accent);
+    min-width: 20px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.required {
+    color: #dc3545;
+}
+
+.form-help {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="index-main">
+    <div class="create-question-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>➕ Create New Question</h1>
+            <p>Add a new question to your quiz collection</p>
+            <a href="{{ url_for('admin.manage_questions') }}" class="back-btn">
+                ← Back to Questions
+            </a>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="admin-card alert-{{ 'danger' if category == 'error' else 'success' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('admin.create_question') }}" id="questionForm">
+            <!-- Question Details Section -->
+            <div class="admin-card">
+                <div class="form-section">
+                    <h3>📝 Question Details</h3>
+                    
+                    <!-- Category Selection -->
+                    <div class="form-group">
+                        <label for="category_id" class="form-label">Category <span class="required">*</span></label>
+                        <select class="form-select" id="category_id" name="category_id" required>
+                            <option value="">Select a category...</option>
+                            {% for category in categories %}
+                                <option value="{{ category.id }}" 
+                                        {% if form_data and form_data.category_id|string == category.id|string %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        {% if not categories %}
+                            <div class="form-help" style="color: #ffc107;">
+                                ⚠️ No categories available. <a href="{{ url_for('admin.manage_categories') }}" style="color: var(--accent);">Create a category first</a>.
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Question Text -->
+                    <div class="form-group">
+                        <label for="question_text" class="form-label">Question Text <span class="required">*</span></label>
+                        <textarea class="form-textarea" id="question_text" name="question_text" rows="3" 
+                                  maxlength="500" placeholder="Enter your question here..." required>{% if form_data %}{{ form_data.question_text }}{% endif %}</textarea>
+                        <div class="form-help">Maximum 500 characters. Be clear and specific.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Answer Options Section -->
+            <div class="admin-card">
+                <div class="form-section">
+                    <h3>🔢 Answer Options</h3>
+                    <div id="optionsContainer">
+                        <!-- Option 1 -->
+                        <div class="option-group" id="optionRow1">
+                            <span class="option-label">A</span>
+                            <input type="text" class="form-input option-input" name="option_1" 
+                                   placeholder="Option 1..." maxlength="200" required
+                                   value="{% if form_data %}{{ form_data.option_1 }}{% endif %}">
+                            <input type="checkbox" class="checkbox-custom" name="correct_0" 
+                                   {% if form_data and form_data.correct_0 %}checked{% endif %}>
+                            <label class="form-label" style="margin: 0;">Correct</label>
+                        </div>
+
+                        <!-- Option 2 -->
+                        <div class="option-group" id="optionRow2">
+                            <span class="option-label">B</span>
+                            <input type="text" class="form-input option-input" name="option_2" 
+                                   placeholder="Option 2..." maxlength="200" required
+                                   value="{% if form_data %}{{ form_data.option_2 }}{% endif %}">
+                            <input type="checkbox" class="checkbox-custom" name="correct_1" 
+                                   {% if form_data and form_data.correct_1 %}checked{% endif %}>
+                            <label class="form-label" style="margin: 0;">Correct</label>
+                        </div>
+
+                        <!-- Option 3 -->
+                        <div class="option-group" id="optionRow3">
+                            <span class="option-label">C</span>
+                            <input type="text" class="form-input option-input" name="option_3" 
+                                   placeholder="Option 3..." maxlength="200"
+                                   value="{% if form_data %}{{ form_data.option_3 }}{% endif %}">
+                            <input type="checkbox" class="checkbox-custom" name="correct_2" 
+                                   {% if form_data and form_data.correct_2 %}checked{% endif %}>
+                            <label class="form-label" style="margin: 0;">Correct</label>
+                        </div>
+
+                        <!-- Option 4 -->
+                        <div class="option-group" id="optionRow4">
+                            <span class="option-label">D</span>
+                            <input type="text" class="form-input option-input" name="option_4" 
+                                   placeholder="Option 4..." maxlength="200"
+                                   value="{% if form_data %}{{ form_data.option_4 }}{% endif %}">
+                            <input type="checkbox" class="checkbox-custom" name="correct_3" 
+                                   {% if form_data and form_data.correct_3 %}checked{% endif %}>
+                            <label class="form-label" style="margin: 0;">Correct</label>
+                        </div>
+
+                        <!-- Option 5 -->
+                        <div class="option-group" id="optionRow5">
+                            <span class="option-label">E</span>
+                            <input type="text" class="form-input option-input" name="option_5" 
+                                   placeholder="Option 5..." maxlength="200"
+                                   value="{% if form_data %}{{ form_data.option_5 }}{% endif %}">
+                            <input type="checkbox" class="checkbox-custom" name="correct_4" 
+                                   {% if form_data and form_data.correct_4 %}checked{% endif %}>
+                            <label class="form-label" style="margin: 0;">Correct</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-help">At least 2 options required. Check the box next to correct answers. Multiple correct answers are supported.</div>
+                </div>
+            </div>
+
+            <!-- Explanation Section -->
+            <div class="admin-card">
+                <div class="form-section">
+                    <h3>💡 Explanation (Optional)</h3>
+                    <div class="form-group">
+                        <textarea class="form-textarea" id="explanation" name="explanation" rows="3" 
+                                  maxlength="1000" placeholder="Provide an explanation for the correct answer...">{% if form_data %}{{ form_data.explanation }}{% endif %}</textarea>
+                        <div class="form-help">Help users understand why this is the correct answer (max 1000 characters).</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <a href="{{ url_for('admin.manage_questions') }}" class="back-btn">
+                    ❌ Cancel
+                </a>
+                <button type="submit" class="admin-btn" id="submitBtn">
+                    💾 Create Question
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Form validation and preview functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('questionForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // Form validation
+    form.addEventListener('submit', function(e) {
+        const categoryId = document.getElementById('category_id').value;
+        const questionText = document.getElementById('question_text').value.trim();
+        const option1 = document.querySelector('input[name="option_1"]').value.trim();
+        const option2 = document.querySelector('input[name="option_2"]').value.trim();
+        
+        // Check for at least one correct answer
+        const correctAnswers = form.querySelectorAll('input[type="checkbox"]:checked');
+        
+        let errors = [];
+        
+        if (!categoryId) {
+            errors.push('Please select a category.');
+        }
+        
+        if (!questionText) {
+            errors.push('Question text is required.');
+        }
+        
+        if (!option1 || !option2) {
+            errors.push('At least 2 options are required.');
+        }
+        
+        if (correctAnswers.length === 0) {
+            errors.push('Please mark at least one correct answer.');
+        }
+        
+        if (errors.length > 0) {
+            e.preventDefault();
+            alert('Please fix the following errors:\n\n' + errors.join('\n'));
+            return false;
+        }
+        
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '⏳ Creating...';
+    });
+    
+    // Character counter for question text
+    const questionTextarea = document.getElementById('question_text');
+    const explanationTextarea = document.getElementById('explanation');
+    
+    if (questionTextarea) {
+        questionTextarea.addEventListener('input', function() {
+            const remaining = 500 - this.value.length;
+            const helpText = this.parentNode.querySelector('.form-help');
+            if (helpText) {
+                helpText.textContent = `Maximum 500 characters. ${remaining} characters remaining.`;
+                if (remaining < 50) {
+                    helpText.style.color = '#dc3545';
+                } else {
+                    helpText.style.color = 'var(--text-muted)';
+                }
+            }
+        });
+    }
+    
+    if (explanationTextarea) {
+        explanationTextarea.addEventListener('input', function() {
+            const remaining = 1000 - this.value.length;
+            const helpText = this.parentNode.querySelector('.form-help');
+            if (helpText) {
+                helpText.textContent = `Help users understand why this is the correct answer (max 1000 characters). ${remaining} remaining.`;
+                if (remaining < 100) {
+                    helpText.style.color = '#dc3545';
+                } else {
+                    helpText.style.color = 'var(--text-muted)';
+                }
+            }
+        });
+    }
+    
+    // Option validation
+    const optionInputs = document.querySelectorAll('.option-input');
+    optionInputs.forEach((input, index) => {
+        input.addEventListener('input', function() {
+            const remaining = 200 - this.value.length;
+            if (remaining < 20) {
+                this.style.borderColor = '#dc3545';
+            } else {
+                this.style.borderColor = 'rgba(255,255,255,0.2)';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

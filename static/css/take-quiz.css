@@ -2,33 +2,40 @@
 .take-quiz-container {
     max-width: 800px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 10px 20px; /* Reduced top padding */
 }
 
 .quiz-progress-header {
     background: linear-gradient(135deg, var(--primary), var(--accent));
     color: #ffffff;
-    padding: 25px 20px;
+    padding: 15px 20px; /* Reduced padding */
     border-radius: 15px;
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 20px; /* Reduced margin */
     box-shadow: var(--shadow);
 }
 
 .quiz-progress-header h1 {
-    margin: 0 0 10px 0;
-    font-size: 2.2rem;
+    margin: 0 0 8px 0; /* Reduced margin */
+    font-size: 1.8rem; /* Slightly smaller */
     font-weight: 700;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
     color: var(--text);
 }
 
 .quiz-progress-header p {
-    font-size: 1.2rem;
+    font-size: 1rem; /* Smaller font */
     margin: 0;
     font-weight: 600;
     color: var(--text);
     opacity: 0.9;
+}
+
+.progress-detail {
+    font-size: 0.85rem !important;
+    opacity: 0.8 !important;
+    margin-top: 3px !important;
+    font-weight: 400 !important;
 }
 
 .question-card {
@@ -94,12 +101,7 @@
     font-weight: 600;
 }
 
-.answer-option:hover {
-    background: var(--primary-light);
-    border-color: var(--primary);
-    color: var(--text);
-    transform: translateX(2px);
-}
+/* Removed distracting hover animation */
 
 .option-input:checked + .answer-option {
     background-color: var(--accent);

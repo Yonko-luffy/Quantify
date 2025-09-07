@@ -52,41 +52,52 @@
     </div>
 
     <!-- Question by Question Review -->
-    {% if results %}
+    {% if detailed_results %}
     <div class="questions-review">
         <h2 class="section-title">📝 Question by Question Review</h2>
         
-        {% for result, question in results %}
-            <div class="question-item {{ 'question-correct' if result.is_correct else 'question-incorrect' }}">
+        {% for item in detailed_results %}
+            <div class="question-item {{ 'question-correct' if item.result.is_correct else 'question-incorrect' }}">
                 <div class="question-header">
                     <span class="question-number">Question {{ loop.index }}</span>
                     <span class="question-result-icon">
-                        {{ '✅' if result.is_correct else '❌' }}
+                        {{ '✅' if item.result.is_correct else '❌' }}
                     </span>
                 </div>
                 
-                <div class="question-text">{{ question.question_text }}</div>
+                <div class="question-text">{{ item.question.question_text }}</div>
                 
                 <div class="answer-options">
-                    {% for option in question.options %}
+                    {% for option in item.options_data %}
+                        {% set is_user_selected = loop.index0 in item.result.selected_answers %}
+                        {% set is_correct_answer = loop.index0 in item.question.correct_answers %}
+                        
                         <div class="answer-option 
-                            {% if loop.index0 == result.selected_index %}
-                                your-answer {{ 'your-answer-correct' if result.is_correct else 'your-answer-incorrect' }}
-                            {% elif loop.index0 == question.answer_index and not result.is_correct %}
-                                correct-answer-highlight
-                            {% endif %}">
+                            {% if is_correct_answer %}correct-answer{% endif %}
+                            {% if is_user_selected and not is_correct_answer %}your-wrong-answer{% endif %}">
                             
-                            {% if loop.index0 == result.selected_index %}
-                                <strong>Your Answer:</strong> {{ option }}
-                                {{ '✅' if result.is_correct else '❌' }}
-                            {% elif loop.index0 == question.answer_index and not result.is_correct %}
-                                <strong>Correct Answer:</strong> {{ option }} ✅
+                            {% if is_user_selected %}
+                                <strong>Your Answer:</strong> {{ option.text if option.text is defined else option }}
+                                {{ '✅' if is_correct_answer else '❌' }}
+                            {% elif is_correct_answer %}
+                                <strong>Correct Answer:</strong> {{ option.text if option.text is defined else option }} ✅
                             {% else %}
-                                {{ option }}
+                                {{ option.text if option.text is defined else option }}
                             {% endif %}
                         </div>
                     {% endfor %}
                 </div>
+                
+                {% if item.question.explanation and item.question.explanation.strip() %}
+                <button class="explanation-toggle" onclick="toggleExplanation({{ loop.index }})">
+                    <span>💡 Show Explanation</span>
+                    <span class="toggle-icon">▼</span>
+                </button>
+                <div class="explanation-section" id="explanation-{{ loop.index }}">
+                    <h4>💡 Explanation</h4>
+                    <p class="explanation-text">{{ item.question.explanation }}</p>
+                </div>
+                {% endif %}
             </div>
         {% endfor %}
     </div>
@@ -110,4 +121,23 @@
     </div>
     </div>
 </div>
+
+<script>
+function toggleExplanation(questionIndex) {
+    const explanationSection = document.getElementById(`explanation-${questionIndex}`);
+    const button = event.target.closest('.explanation-toggle');
+    const buttonText = button.querySelector('span:first-child');
+    const icon = button.querySelector('.toggle-icon');
+    
+    if (explanationSection.style.display === 'none' || explanationSection.style.display === '') {
+        explanationSection.style.display = 'block';
+        buttonText.textContent = '💡 Hide Explanation';
+        button.classList.add('active');
+    } else {
+        explanationSection.style.display = 'none';
+        buttonText.textContent = '💡 Show Explanation';
+        button.classList.remove('active');
+    }
+}
+</script>
 {% endblock %}

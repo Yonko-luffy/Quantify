@@ -1,290 +1,620 @@
 {% extends "base.html" %}
 
+{% block title %}Edit Quiz - Quantify{% endblock %}
+
 {% block head %}
-<title>Edit Quiz - Quantify</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='css/edit_quiz.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/quiz.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<style>
+.edit-quiz-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.page-header {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    padding: 2rem;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+    text-align: center;
+    box-shadow: var(--shadow);
+}
+
+.section-card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+}
+
+.section-title {
+    color: var(--accent);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    color: var(--text);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    transition: background 0.3s ease;
+}
+
+.checkbox-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.checkbox-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+}
+
+.quiz-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.quiz-btn:hover {
+    background: var(--accent-dark);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: var(--text-light);
+    color: var(--background);
+}
+
+.btn-success {
+    background: var(--success);
+}
+
+.questions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.question-item {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 1.5rem;
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+}
+
+.question-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--accent);
+}
+
+.question-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.question-number {
+    background: var(--accent);
+    color: white;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.question-info {
+    flex: 1;
+}
+
+.question-text {
+    color: var(--text);
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.question-meta-info {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.category-badge {
+    background: rgba(99, 102, 241, 0.2);
+    color: #6366f1;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.type-badge {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.question-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-btn {
+    width: 35px;
+    height: 35px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.edit-btn {
+    background: rgba(99, 102, 241, 0.2);
+    color: #6366f1;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+}
+
+.edit-btn:hover {
+    background: rgba(99, 102, 241, 0.3);
+    color: #6366f1;
+    text-decoration: none;
+    transform: translateY(-2px);
+}
+
+.question-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.option-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.option-item.correct-option {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.3);
+}
+
+.option-letter {
+    background: var(--accent);
+    color: white;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.correct-option .option-letter {
+    background: #22c55e;
+}
+
+.option-text {
+    color: var(--text);
+    flex: 1;
+    line-height: 1.4;
+}
+
+.correct-indicator {
+    color: #22c55e;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.question-explanation {
+    background: rgba(255, 255, 255, 0.05);
+    border-left: 3px solid var(--accent);
+    padding: 1rem;
+    border-radius: 8px;
+    color: var(--text-light);
+    font-style: italic;
+}
+
+.more-questions-notice {
+    background: rgba(255, 255, 255, 0.02);
+    border: 2px dashed var(--border);
+    border-radius: 15px;
+    margin-top: 1rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-light);
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.back-btn {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 8px 16px;
+    background-color: #10519b;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    font-size: 14px;
+}
+
+.back-btn:hover {
+    background-color: #5a6268;
+    color: white;
+    text-decoration: none;
+}
+
+.alert-success {
+    background: rgba(34, 197, 94, 0.1) !important;
+    border-color: rgba(34, 197, 94, 0.3) !important;
+    color: #16a34a;
+}
+
+.alert-danger {
+    background: rgba(239, 68, 68, 0.1) !important;
+    border-color: rgba(239, 68, 68, 0.3) !important;
+    color: #dc2626;
+}
+
+@media (max-width: 768px) {
+    .grid-2 {
+        grid-template-columns: 1fr;
+    }
+    
+    .edit-quiz-container {
+        padding: 10px;
+    }
+    
+    .page-header {
+        padding: 1.5rem;
+    }
+    
+    .section-card {
+        padding: 1.5rem;
+    }
+}
+</style>
 {% endblock %}
 
 {% block body %}
-<div class="admin-panel">
-  <h2>Edit Quiz: {{ quiz.name }}</h2>
-  <a href="{{ url_for('admin.manage_quizzes') }}" class="back-btn">← Back to Quiz Management</a>
+<div class="index-main">
+    <div class="edit-quiz-container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 style="color: white; font-weight: 600;">✏️ Edit Quiz Template</h1>
+            <p style="color: rgba(255,255,255,0.9); margin-bottom: 1rem;">{{ quiz.name }}</p>
+            <a href="{{ url_for('admin.manage_quizzes') }}" class="back-btn">
+                ← Back to Manage Quizzes
+            </a>
+        </div>
 
-  <div class="edit-quiz-container">
-    {% if error %}
-      <div class="error-message">{{ error }}</div>
-    {% endif %}
-    {% if success %}
-      <div class="success-message">{{ success }}</div>
-    {% endif %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="section-card alert-{{ 'danger' if category == 'error' else 'success' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
-    <!-- Edit Quiz Name -->
-    <form method="post" class="quiz-edit-form" style="margin-bottom:2em;">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-      <input type="hidden" name="action" value="update_name" />
-      <label for="quiz_name">Quiz Name:</label>
-      <input type="text" name="quiz_name" id="quiz_name" value="{{ quiz.name }}" required style="margin-bottom:1em;" />
-      <button type="submit" class="btn">Update Name</button>
-    </form>
-
-    <!-- Add Question -->
-    <form method="post" class="question-add-form">
-      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-      <input type="hidden" name="action" value="add_question" />
-      <h3>Add Question</h3>
-      <input type="text" name="question_text" placeholder="Question text..." required style="margin-bottom:1em;" />
-      <div class="options-group">
-        <input type="text" name="option1" placeholder="Option 1" required />
-        <input type="text" name="option2" placeholder="Option 2" required />
-        <input type="text" name="option3" placeholder="Option 3" />
-        <input type="text" name="option4" placeholder="Option 4" />
-        <input type="text" name="option5" placeholder="Option 5" />
-      </div>
-      <label for="answer_index">Correct Option:</label>
-      <select name="answer_index" id="answer_index" required>
-        <option value="0">Option 1</option>
-        <option value="1">Option 2</option>
-        <option value="2">Option 3</option>
-        <option value="3">Option 4</option>
-        <option value="4">Option 5</option>
-      </select>
-      <label for="explanation">Explanation (optional):</label>
-      <textarea name="explanation" id="explanation" placeholder="Explain why this answer is correct and others are wrong..." rows="3" style="width: 100%; margin-bottom: 1em; padding: 8px; border: 2px solid #ddd; border-radius: 4px; background: rgba(255, 255, 255, 0.9);"></textarea>
-      <button type="submit" class="btn">Add Question</button>
-    </form>
-
-    <!-- Questions - Inline Editing -->
-    <div class="questions-container-inline">
-      <h3>Questions</h3>
-      {% for q in questions %}
-        <div class="question-inline" data-question-id="{{ q.id }}">
-          <form action="{{ url_for('admin.update_question_inline', question_id=q.id) }}" method="post" class="question-form">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            <input type="text" class="question-text-edit" name="question_text" value="{{ q.question_text }}" readonly>
-            <div class="inline-options" data-option-count="{{ q.options|length }}">
-              {% for opt in q.options %}
-                <div class="inline-option">
-                  <input type="radio" name="answer_index" value="{{ loop.index0 }}" {% if loop.index0 == q.answer_index %}checked{% endif %} disabled>
-                  <input type="text" class="option-text" name="option_{{ loop.index0 }}" value="{{ opt }}" readonly>
-                  {% if q.options|length > 2 %}
-                    <button type="button" class="remove-option-btn" onclick="removeOption(this)" style="display:none;">×</button>
-                  {% endif %}
+        <!-- Quiz Details Section -->
+        <div class="section-card">
+            <h2 class="section-title">📝 Quiz Template Details</h2>
+            <form method="POST" action="{{ url_for('admin.edit_quiz', quiz_id=quiz.id) }}" id="quizDetailsForm">
+                
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="quiz_name" class="form-label">Quiz Name *</label>
+                        <input type="text" class="form-input" id="quiz_name" name="quiz_name" 
+                               value="{{ quiz.name }}" required maxlength="150">
+                    </div>
+                    <div class="form-group">
+                        <label for="quiz_type" class="form-label">Quiz Type</label>
+                        <select class="form-input" id="quiz_type" name="quiz_type">
+                            <option value="standard" {% if quiz.quiz_type == 'standard' %}selected{% endif %}>Standard</option>
+                            <option value="timed" {% if quiz.quiz_type == 'timed' %}selected{% endif %}>Timed</option>
+                            <option value="practice" {% if quiz.quiz_type == 'practice' %}selected{% endif %}>Practice</option>
+                        </select>
+                    </div>
                 </div>
-              {% endfor %}
-            </div>
-            <div class="explanation-field">
-              <label for="explanation_{{ q.id }}" style="display:none; margin-top: 10px; font-weight: 500;">Explanation:</label>
-              <textarea name="explanation" id="explanation_{{ q.id }}" class="explanation-text" readonly style="width: 100%; height: 60px; margin-top: 5px; padding: 8px; border: 2px solid #ddd; border-radius: 4px; resize: vertical; background: rgba(255, 255, 255, 0.9);">{{ q.explanation if q.explanation else '' }}</textarea>
-            </div>
-            <div class="question-actions">
-              <button type="button" class="action-btn edit-btn" onclick="enableEdit(this)">Edit</button>
-              <button type="button" class="action-btn add-option-btn" onclick="addOption(this)" style="display:none;">+ Add Option</button>
-              <button type="submit" class="action-btn save-btn" style="display:none;">Save</button>
-              <button type="button" class="action-btn cancel-btn" onclick="cancelEdit(this)" style="display:none;">Cancel</button>
-              <button type="button" class="action-btn delete-btn" onclick="deleteQuestion({{ q.id }})">Delete</button>
-            </div>
-          </form>
+                
+                <div class="form-group">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-input form-textarea" id="description" name="description" 
+                              maxlength="1000" placeholder="Brief description of your quiz...">{{ quiz.description or '' }}</textarea>
+                </div>
+                
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="number_of_questions" class="form-label">Number of Questions *</label>
+                        <input type="number" class="form-input" id="number_of_questions" name="number_of_questions" 
+                               value="{{ quiz.number_of_questions }}" min="1" max="50" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="time_limit_minutes" class="form-label">Time Limit (minutes)</label>
+                        <input type="number" class="form-input" id="time_limit_minutes" name="time_limit_minutes" 
+                               value="{{ quiz.time_limit_minutes or '' }}" min="1" max="300" placeholder="No limit">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Source Categories *</label>
+                    <div style="max-height: 300px; overflow-y: auto; border: 1px solid var(--border); border-radius: 10px; padding: 1rem;">
+                        {% for category in categories %}
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="category_ids" value="{{ category.id }}" 
+                                       id="category_{{ category.id }}"
+                                       {% if category.id in selected_categories %}checked{% endif %}>
+                                <label for="category_{{ category.id }}">
+                                    {{ category.name }}
+                                    <small style="color: var(--text-light);">({{ category.questions.count() }} questions)</small>
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <small style="color: var(--text-light);">Questions will be randomly selected from these categories</small>
+                </div>
+                
+                <button type="submit" class="quiz-btn">
+                    💾 Update Quiz Template
+                </button>
+            </form>
         </div>
-      {% else %}
-        <div class="question-inline">
-          <div style="text-align: center; padding: 20px; color: var(--text-light);">No questions yet. Add your first question above!</div>
-        </div>
-      {% endfor %}
-    </div>
 
-  </div>
+        <!-- Preview Questions Section -->
+        <div class="section-card">
+            <h2 class="section-title">🔍 Available Questions Preview</h2>
+            <p style="color: var(--text-light); margin-bottom: 1.5rem;">
+                These are questions from your selected categories. During quiz taking, 
+                {{ quiz.number_of_questions }} questions will be randomly selected from these.
+            </p>
+            
+            <div class="form-group">
+                <label for="categoryFilter" class="form-label">Filter by Category:</label>
+                <select class="form-input" id="categoryFilter" onchange="filterQuestions()" style="max-width: 300px;">
+                    <option value="">All Selected Categories</option>
+                    {% for category in categories %}
+                        {% if category.id in selected_categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div id="questionsPreview">
+                {% set available_questions = [] %}
+                {% for category in categories %}
+                    {% if category.id in selected_categories %}
+                        {% for question in category.questions %}
+                            {% set _ = available_questions.append(question) %}
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+                
+                {% if available_questions %}
+                    <div class="questions-list">
+                        {% for question in available_questions[:15] %}
+                            <div class="question-item" data-category="{{ question.category_id }}">
+                                <div class="question-header">
+                                    <div class="question-number">{{ loop.index }}</div>
+                                    <div class="question-info">
+                                        <div class="question-text">{{ question.question_text }}</div>
+                                        <div class="question-meta-info">
+                                            <span class="category-badge">{{ question.category.name }}</span>
+                                            <span class="type-badge">{% if question.correct_answers|length > 1 %}Multiple Choice{% else %}Single Choice{% endif %}</span>
+                                        </div>
+                                    </div>
+                                    <div class="question-actions">
+                                        <a href="{{ url_for('admin.edit_question', question_id=question.id) }}" 
+                                           class="action-btn edit-btn" title="Edit Question">
+                                            ✏️
+                                        </a>
+                                    </div>
+                                </div>
+                                
+                                <div class="question-options">
+                                    {% for option in question.options %}
+                                        {% set option_text = option.text if option is mapping else option %}
+                                        <div class="option-item {% if loop.index0 in question.correct_answers %}correct-option{% endif %}">
+                                            <span class="option-letter">{{ 'ABCDEFGHIJ'[loop.index0] }}.</span>
+                                            <span class="option-text">{{ option_text }}</span>
+                                            {% if loop.index0 in question.correct_answers %}
+                                                <span class="correct-indicator">✓</span>
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                {% if question.explanation %}
+                                    <div class="question-explanation">
+                                        <strong>Explanation:</strong> {{ question.explanation }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        
+                        {% if available_questions|length > 15 %}
+                            <div class="more-questions-notice">
+                                <div style="text-align: center; padding: 2rem; color: var(--text-light);">
+                                    <div style="font-size: 2rem; margin-bottom: 1rem;">📚</div>
+                                    <h3>{{ available_questions|length - 15 }} More Questions Available</h3>
+                                    <p>Total questions in selected categories: {{ available_questions|length }}</p>
+                                    <a href="{{ url_for('admin.manage_questions') }}" class="quiz-btn btn-secondary">
+                                        📋 View All Questions
+                                    </a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-state-icon">❓</div>
+                        <h3>No Questions Available</h3>
+                        <p>Select some categories above to see available questions.</p>
+                        <a href="{{ url_for('admin.create_question') }}" class="quiz-btn">
+                            ➕ Create New Question
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
-// Store original values for cancel functionality
-let originalValues = {};
-
-function enableEdit(btn) {
-  const container = btn.closest('.question-inline');
-  const questionId = container.dataset.questionId;
-  const form = container.querySelector('.question-form');
-  
-  // Store original values
-  originalValues[questionId] = {
-    questionText: form.querySelector('[name="question_text"]').value,
-    options: Array.from(form.querySelectorAll('.option-text')).map(input => input.value),
-    correctAnswer: form.querySelector('input[type="radio"]:checked').value,
-    explanation: form.querySelector('[name="explanation"]').value
-  };
-  
-  // Enable editing
-  const inputs = form.querySelectorAll('input');
-  const textareas = form.querySelectorAll('textarea');
-  const editBtn = container.querySelector('.edit-btn');
-  const addOptionBtn = container.querySelector('.add-option-btn');
-  const saveBtn = container.querySelector('.save-btn');
-  const cancelBtn = container.querySelector('.cancel-btn');
-  const removeButtons = container.querySelectorAll('.remove-option-btn');
-  const explanationLabel = form.querySelector('label[for^="explanation_"]');
-  
-  inputs.forEach(input => {
-    input.removeAttribute('readonly');
-    input.removeAttribute('disabled');
-  });
-  
-  textareas.forEach(textarea => {
-    textarea.removeAttribute('readonly');
-  });
-  
-  if (explanationLabel) {
-    explanationLabel.style.display = 'block';
-  }
-  
-  editBtn.style.display = 'none';
-  addOptionBtn.style.display = 'inline-flex';
-  saveBtn.style.display = 'inline-flex';
-  cancelBtn.style.display = 'inline-flex';
-  
-  // Show remove buttons if more than 2 options
-  const optionsContainer = container.querySelector('.inline-options');
-  if (optionsContainer.children.length > 2) {
-    removeButtons.forEach(btn => btn.style.display = 'inline-flex');
-  }
+// Filter questions by category
+function filterQuestions() {
+    const categoryFilter = document.getElementById('categoryFilter');
+    const selectedCategory = categoryFilter.value;
+    const questionItems = document.querySelectorAll('.question-item[data-category]');
+    
+    questionItems.forEach(item => {
+        if (!selectedCategory || item.dataset.category === selectedCategory) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
 }
 
-function cancelEdit(btn) {
-  const container = btn.closest('.question-inline');
-  const questionId = container.dataset.questionId;
-  const form = container.querySelector('.question-form');
-  
-  // Restore original values
-  if (originalValues[questionId]) {
-    const original = originalValues[questionId];
-    form.querySelector('[name="question_text"]').value = original.questionText;
-    form.querySelector('[name="explanation"]').value = original.explanation;
+// Update available questions count when categories change
+document.addEventListener('DOMContentLoaded', function() {
+    const categoryCheckboxes = document.querySelectorAll('input[name="category_ids"]');
     
-    const optionsContainer = container.querySelector('.inline-options');
-    optionsContainer.innerHTML = '';
-    
-    original.options.forEach((optionText, index) => {
-      const optionDiv = createOptionElement(questionId, index, optionText, index == original.correctAnswer);
-      optionsContainer.appendChild(optionDiv);
+    categoryCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateQuestionsCount();
+        });
     });
     
-    optionsContainer.dataset.optionCount = original.options.length;
-  }
-  
-  // Disable editing
-  const inputs = form.querySelectorAll('input');
-  const textareas = form.querySelectorAll('textarea');
-  const editBtn = container.querySelector('.edit-btn');
-  const addOptionBtn = container.querySelector('.add-option-btn');
-  const saveBtn = container.querySelector('.save-btn');
-  const cancelBtn = container.querySelector('.cancel-btn');
-  const removeButtons = container.querySelectorAll('.remove-option-btn');
-  const explanationLabel = form.querySelector('label[for^="explanation_"]');
-  
-  inputs.forEach(input => {
-    if (input.type === 'text') {
-      input.setAttribute('readonly', 'readonly');
-    } else if (input.type === 'radio') {
-      input.setAttribute('disabled', 'disabled');
+    function updateQuestionsCount() {
+        const selectedCategories = Array.from(document.querySelectorAll('input[name="category_ids"]:checked'))
+            .map(cb => parseInt(cb.value));
+            
+        if (selectedCategories.length === 0) {
+            return;
+        }
+        
+        fetch('/admin/api/categories/questions-count', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({category_ids: selectedCategories})
+        })
+        .then(response => response.json())
+        .then(data => {
+            const numberInput = document.getElementById('number_of_questions');
+            const currentValue = parseInt(numberInput.value) || 0;
+            
+            if (currentValue > data.count) {
+                numberInput.max = data.count;
+                numberInput.value = data.count;
+            } else {
+                numberInput.max = data.count;
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching questions count:', error);
+        });
     }
-  });
-  
-  textareas.forEach(textarea => {
-    textarea.setAttribute('readonly', 'readonly');
-  });
-  
-  if (explanationLabel) {
-    explanationLabel.style.display = 'none';
-  }
-  
-  editBtn.style.display = 'inline-flex';
-  addOptionBtn.style.display = 'none';
-  saveBtn.style.display = 'none';
-  cancelBtn.style.display = 'none';
-  removeButtons.forEach(btn => btn.style.display = 'none');
-}
-
-function addOption(btn) {
-  const container = btn.closest('.question-inline');
-  const questionId = container.dataset.questionId;
-  const optionsContainer = container.querySelector('.inline-options');
-  const currentCount = parseInt(optionsContainer.dataset.optionCount);
-  
-  if (currentCount >= 5) {
-    alert('Maximum 5 options allowed.');
-    return;
-  }
-  
-  const newOptionDiv = createOptionElement(questionId, currentCount, '', false);
-  optionsContainer.appendChild(newOptionDiv);
-  optionsContainer.dataset.optionCount = currentCount + 1;
-  
-  // Show remove buttons if more than 2 options
-  if (currentCount + 1 > 2) {
-    container.querySelectorAll('.remove-option-btn').forEach(btn => btn.style.display = 'inline-flex');
-  }
-  
-  // Focus on the new option input
-  newOptionDiv.querySelector('.option-text').focus();
-}
-
-function removeOption(btn) {
-  const container = btn.closest('.question-inline');
-  const optionsContainer = container.querySelector('.inline-options');
-  const currentCount = parseInt(optionsContainer.dataset.optionCount);
-  
-  if (currentCount <= 2) {
-    alert('Minimum 2 options required.');
-    return;
-  }
-  
-  const optionDiv = btn.closest('.inline-option');
-  const removedIndex = Array.from(optionsContainer.children).indexOf(optionDiv);
-  
-  optionDiv.remove();
-  optionsContainer.dataset.optionCount = currentCount - 1;
-  
-  // Re-index radio buttons and form field names
-  const remainingOptions = optionsContainer.querySelectorAll('.inline-option');
-  remainingOptions.forEach((option, index) => {
-    const radio = option.querySelector('input[type="radio"]');
-    const textInput = option.querySelector('.option-text');
-    
-    radio.value = index;
-    textInput.name = `option_${index}`;
-    
-    // If the removed option was selected, select the first option
-    if (index === 0 && removedIndex === 0) {
-      radio.checked = true;
-    }
-  });
-  
-  // Hide remove buttons if only 2 options left
-  if (currentCount - 1 <= 2) {
-    container.querySelectorAll('.remove-option-btn').forEach(btn => btn.style.display = 'none');
-  }
-}
-
-function createOptionElement(questionId, index, value, isChecked) {
-  const div = document.createElement('div');
-  div.className = 'inline-option';
-  
-  div.innerHTML = `
-    <input type="radio" name="answer_index" value="${index}" ${isChecked ? 'checked' : ''}>
-    <input type="text" class="option-text" name="option_${index}" value="${value}">
-    <button type="button" class="remove-option-btn" onclick="removeOption(this)" style="display:none;">×</button>
-  `;
-  
-  return div;
-}
-
-function deleteQuestion(questionId) {
-  if (confirm('Delete this question?')) {
-    // Create a form and submit it
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = `/delete_question/${questionId}`;
-    document.body.appendChild(form);
-    form.submit();
-  }
-}
+});
 </script>
 {% endblock %}

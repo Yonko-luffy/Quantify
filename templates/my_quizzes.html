@@ -33,20 +33,20 @@
         </div>
         
         <!-- Ongoing Quizzes -->
-        {% if ongoing %}
+        {% if ongoing_attempts %}
         <div class="quiz-card section">
             <h2 class="section-title">🚀 In Progress</h2>
-            {% for quiz, progress in ongoing %}
+            {% for attempt in ongoing_attempts %}
             <div class="quiz-item">
                 <div class="quiz-info">
-                    <div class="quiz-name">{{ quiz.name }}</div>
+                    <div class="quiz-name">{{ attempt.quiz_template.name }}</div>
                     <div class="quiz-meta">
-                        Started: {{ progress.started_at.strftime('%B %d, %Y at %I:%M %p') }}
-                        <br>Current Score: {{ progress.score }} correct
+                        Started: {{ attempt.started_at.strftime('%B %d, %Y at %I:%M %p') }}
+                        <br>Current Score: {{ attempt.score }} correct
                     </div>
                 </div>
                 <div class="quiz-actions">
-                    <a href="{{ url_for('quiz.take_quiz', quiz_id=quiz.id) }}" class="btn btn-continue">
+                    <a href="{{ url_for('quiz.take_quiz', attempt_id=attempt.id) }}" class="btn btn-continue">
                         Continue Quiz
                     </a>
                 </div>
@@ -66,27 +66,27 @@
                 <div class="quiz-item attempt-item">
                     <div class="quiz-info">
                         <div class="quiz-name">
-                            Attempt #{{ attempt.attempt_number }}
+                            Attempt #{{ quiz_data.attempts|length - loop.index0 }}
                             {% if loop.first %}
                                 <span class="latest-badge">Latest</span>
                             {% endif %}
                         </div>
                         <div class="quiz-meta">
                             Completed: {{ attempt.completed_at.strftime('%B %d, %Y at %I:%M %p') }}
-                            <br>Total Questions: {{ attempt.total_questions }}
+                            <br>Total Questions: {{ attempt.questions|length }}
                         </div>
                     </div>
                     <div class="score-display">
-                        {{ attempt.score }}/{{ attempt.total_questions }}
+                        {{ attempt.score }}/{{ attempt.questions|length }}
                         <br>
-                        <small>{{ "%.1f"|format((attempt.score / attempt.total_questions) * 100) }}%</small>
+                        <small>{{ "%.1f"|format((attempt.score / attempt.questions|length) * 100) }}%</small>
                     </div>
                     <div class="quiz-actions">
-                        <a href="{{ url_for('quiz.quiz_results', quiz_id=attempt.id, attempt=attempt.attempt_number) }}" class="btn btn-view">
+                        <a href="{{ url_for('quiz.attempt_results', attempt_id=attempt.id) }}" class="btn btn-view">
                             View Results
                         </a>
                         {% if loop.first %}
-                        <a href="{{ url_for('quiz.quiz_detail', quiz_id=attempt.id) }}" class="btn btn-retake">
+                        <a href="{{ url_for('quiz.quiz_detail', quiz_id=attempt.quiz_id) }}" class="btn btn-retake">
                             Retake Quiz
                         </a>
                         {% endif %}

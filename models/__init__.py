@@ -8,6 +8,6 @@ login_manager = LoginManager()
 
 # Import models after db initialization
 from .user import Users
-from .quiz import Quiz, Questions, QuizResults, QuizProgress
+from .quiz import Category, Question, Quiz, QuizAttempt, QuizResult
 from .otp import OTPCode
 from .rate_limit import RateLimit

@@ -32,6 +32,15 @@
 - Randomized question order
 - Immediate or delayed result display
 - Detailed performance analytics
+- **Auto-creation of sample quantitative & reasoning quizzes**
+- **10 comprehensive quiz categories covering competitive exam topics**
+
+### 🎯 **Quantitative Aptitude Content**
+- **50+ Professional-grade questions** with detailed explanations
+- **10 Specialized categories**: Numerical Ability, Logical Reasoning, Data Interpretation, Analytical Reasoning, Mathematical Operations, Number Series, Percentage & Profit Loss, Time & Distance, Probability & Statistics, Pattern Recognition
+- **Competitive exam preparation** for CAT, GRE, GMAT, Banking exams
+- **Step-by-step solutions** for enhanced learning
+- **Varied difficulty levels** from foundation to expert
 
 ### 👥 **User Experience**
 - Intuitive dashboard for quiz management
@@ -107,11 +116,32 @@
    # Create PostgreSQL database
    createdb quantify_db
    
-   # Initialize tables
+   # Initialize tables (this will also auto-create sample quiz data)
    python -c "from app import app, db; app.app_context().push(); db.create_all()"
    ```
 
-5. **Environment Configuration**
+5. **Quiz Data Management**
+   
+   The application automatically creates sample quantitative and reasoning quiz data when first run. You can manage this data using the provided utilities:
+   
+   ```bash
+   # Check current quiz data status
+   python manage_quiz_data.py status
+   
+   # Create fresh quiz data (only if none exists)
+   python create_quant_reasoning_data.py
+   
+   # Force recreate all quiz data
+   python create_quant_reasoning_data.py --force
+   
+   # Reset all quiz data to defaults
+   python manage_quiz_data.py reset
+   
+   # Clear all quiz data
+   python manage_quiz_data.py clear
+   ```
+
+6. **Environment Configuration**
    Create a `.env` file in the root directory with your own credentials:
    ```env
    # Database (you need to set up your own PostgreSQL database)
@@ -133,12 +163,12 @@
    # CAPTCHA_SECRET_KEY=your-captcha-secret-key
    ```
 
-6. **Run the Application**
+7. **Run the Application**
    ```bash
    python app.py
    ```
 
-Visit `http://localhost:5000` to access Quantify!
+Visit `http://localhost:5002` to access Quantify!
 
 ### Important Notes:
 - **Database:** You must create your own PostgreSQL database and connection string

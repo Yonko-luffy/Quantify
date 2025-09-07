@@ -77,7 +77,7 @@
                     <p style="font-size:0.95rem; color:var(--text-muted); margin-bottom:6px;">Progress: {{ "%.1f"|format(stats.completion) }}% complete</p>
                 {% endif %}
                 <div class="action-buttons">
-                    <a href="{{ url_for('quiz.take_quiz', quiz_id=quiz.id) }}" class="btn btn-primary">
+                    <a href="{{ url_for('quiz.take_quiz', attempt_id=ongoing_attempt.id) }}" class="btn btn-primary">
                         Continue Quiz
                     </a>
                 </div>

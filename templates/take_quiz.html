@@ -20,6 +20,7 @@
     <div class="quiz-progress-header">
         <h1>{{ quiz.name }}</h1>
         <p>Question {{ question_number }} of {{ total_questions }}</p>
+        <p class="progress-detail">{{ answered_count }} answered • {{ total_questions - answered_count }} remaining</p>
     </div>
 
     <!-- Question Card -->
@@ -27,10 +28,10 @@
         <div class="question-text">
             {{ question.question_text }}
         </div>
-        <form action="{{ url_for('quiz.submit_answer', quiz_id=quiz.id, question_id=question.id) }}" method="post" id="questionForm">
+        <form action="{{ url_for('quiz.submit_answer', attempt_id=attempt.id, question_id=question.id) }}" method="post" id="questionForm">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <div class="options-container">
-                {% for option in question.options %}
+                {% for option in options_data %}
                     <div class="option-item">
                         <input type="radio" 
                                name="answer" 
@@ -40,7 +41,7 @@
                                onchange="enableSubmit()">
                         <label for="option_{{ loop.index0 }}" class="answer-option">
                             <span class="option-letter">{{ 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[loop.index0] }}</span>
-                            {{ option }}
+                            {{ option.text if option.text is defined else option }}
                         </label>
                     </div>
                 {% endfor %}
