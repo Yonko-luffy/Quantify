@@ -761,7 +761,7 @@ def create_quant_reasoning_data(force_recreate=False):
             # This is the NEW, corrected code
             admin = Users(
                 username='admin',
-                email='admin@quantify.com',
+                email='quantify.verify@gmail.com',
                 password=generate_password_hash('admin123'), 
                 role='admin'                                
             )
