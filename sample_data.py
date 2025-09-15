@@ -2449,17 +2449,35 @@ def main():
     
     args = parser.parse_args()
     
-    # Create app and run within context
-    app = create_app()
-    
-    with app.app_context():
-        # Import and initialize database
-        from models import db
-        db.init_app(app)  # Initialize with app
-        db.create_all()
+    try:
+        # Create app and run within context
+        app = create_app()
         
-        # Create the assessment data
-        create_clean_assessment_data(force_recreate=args.force)
+        with app.app_context():
+            # Import and initialize database
+            from models import db
+            
+            # Test database connection first
+            try:
+                db.init_app(app)  # Initialize with app
+                db.create_all()
+                print("✅ Database connection established successfully")
+            except Exception as db_error:
+                print(f"❌ Database connection failed: {db_error}")
+                print("\n🔧 Troubleshooting tips:")
+                print("1. Verify DATABASE_URL in your environment variables")
+                print("2. Ensure PostgreSQL server is running")
+                print("3. Check if psycopg2-binary is installed: pip install psycopg2-binary")
+                print("4. For Heroku deployment, ensure database add-on is provisioned")
+                return
+            
+            # Create the assessment data
+            create_clean_assessment_data(force_recreate=args.force)
+            
+    except Exception as e:
+        print(f"❌ Application error: {e}")
+        print("\n🔧 Check your configuration and try again")
+        return
 
 if __name__ == "__main__":
     main()

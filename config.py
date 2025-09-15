@@ -13,18 +13,27 @@ class Config:
     """
     # --- Database ---
     # The connection string for the application's database.
+    # PostgreSQL ONLY - no fallbacks
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
-    if SQLALCHEMY_DATABASE_URI and SQLALCHEMY_DATABASE_URI.startswith("postgres://"):
-        SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace("postgres://", "postgresql://", 1)
+    
+    # Handle different database URL formats (Heroku compatibility)
+    if SQLALCHEMY_DATABASE_URI:
+        # Convert postgres:// to postgresql:// for newer SQLAlchemy versions
+        if SQLALCHEMY_DATABASE_URI.startswith("postgres://"):
+            SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace("postgres://", "postgresql://", 1)
+    else:
+        raise ValueError("DATABASE_URL environment variable is required. Please set it in your .env file.")
     
     # Disables a deprecated Flask-SQLAlchemy event system to improve performance.
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    # --- Database Engine Options for Heroku ---
-    # These settings help manage database connections in a stateless environment
-    # like Heroku, preventing connection timeouts.
+    
+    # --- Database Engine Options for Production ---
+    # These settings help manage database connections in cloud environments
     SQLALCHEMY_ENGINE_OPTIONS = {
-        "pool_recycle": 280,
-        "pool_pre_ping": True
+        "pool_recycle": 280,        # Recycle connections every 280 seconds
+        "pool_pre_ping": True,      # Verify connections before use
+        "pool_timeout": 20,         # Timeout for getting connection from pool
+        "max_overflow": 0,          # Limit overflow connections
     }
     
     # --- Security ---
