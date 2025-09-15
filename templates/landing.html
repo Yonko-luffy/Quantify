@@ -6,30 +6,28 @@
 {% endblock %}
 
 {% block body %}
-<!-- Unified Glassmorphism Container -->
-<div class="unified-glass-container">
-    <!-- Hero Section -->
-    <section class="hero-section">
-        <div class="hero-container">
-            <div class="hero-content">
-                <div class="hero-text">
-                    <h1 class="hero-title">Master Quantitative Reasoning</h1>
-                    <p class="hero-subtitle">Sharpen your mathematical skills with comprehensive assessments designed for competitive exams, interviews, and academic success.</p>
-                    
-                    <div class="hero-features">
-                        <div class="feature-item">
-                            <i class="fas fa-calculator"></i>
-                            <span>10 Core Categories</span>
-                        </div>
-                        <div class="feature-item">
-                            <i class="fas fa-chart-line"></i>
-                            <span>150+ Practice Questions</span>
-                        </div>
-                        <div class="feature-item">
-                            <i class="fas fa-trophy"></i>
-                            <span>Progress Tracking</span>
-                        </div>
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-container">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="hero-title">Master Quantitative Reasoning</h1>
+                <p class="hero-subtitle">Sharpen your mathematical skills with comprehensive assessments designed for competitive exams, interviews, and academic success.</p>
+                
+                <div class="hero-features">
+                    <div class="feature-item">
+                        <i class="fas fa-calculator"></i>
+                        <span>10 Core Categories</span>
                     </div>
+                    <div class="feature-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span>150+ Practice Questions</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-trophy"></i>
+                        <span>Progress Tracking</span>
+                    </div>
+                </div>
 
                 <div class="hero-actions">
                     {% if current_user.is_authenticated %}
@@ -58,9 +56,9 @@
                         <p>Master basic calculations and number operations</p>
                     </div>
                     <div class="preview-card">
-                        <i class="fas fa-lightbulb text-success"></i>
-                        <h3>Critical Thinking</h3>
-                        <p>Develop logical reasoning and problem-solving skills</p>
+                        <i class="fas fa-chart-pie text-success"></i>
+                        <h3>Data Analysis</h3>
+                        <p>Interpret charts, graphs, and statistical data</p>
                     </div>
                     <div class="preview-card">
                         <i class="fas fa-percentage text-warning"></i>
@@ -92,7 +90,7 @@
             
             <div class="feature-card">
                 <div class="feature-icon">
-                    <i class="fas fa-cogs"></i>
+                    <i class="fas fa-target"></i>
                 </div>
                 <h3>Adaptive Learning</h3>
                 <p>Questions tailored to your skill level with immediate feedback to accelerate your learning progress.</p>
@@ -108,10 +106,10 @@
             
             <div class="feature-card">
                 <div class="feature-icon">
-                    <i class="fas fa-chart-bar"></i>
+                    <i class="fas fa-clock"></i>
                 </div>
-                <h3>Smart Analytics</h3>
-                <p>Advanced insights and performance metrics to identify strengths and areas for improvement.</p>
+                <h3>Timed Practice</h3>
+                <p>Simulate real exam conditions with timed assessments to improve your speed and accuracy.</p>
             </div>
             
             <div class="feature-card">
@@ -244,6 +242,13 @@
                 <p>Challenge friends and compete on leaderboards</p>
                 <span class="status">Planned</span>
             </div>
+            
+            <div class="future-card">
+                <i class="fas fa-certificate"></i>
+                <h3>Certificates</h3>
+                <p>Earn certificates for completing assessment milestones</p>
+                <span class="status">Planned</span>
+            </div>
         </div>
     </div>
 </section>
@@ -267,6 +272,4 @@
         </div>
     </div>
 </section>
-
-</div> <!-- End Unified Glassmorphism Container -->
 {% endblock %}

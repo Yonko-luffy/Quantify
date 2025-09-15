@@ -6,14 +6,6 @@
 <div class="container mt-4">
     <h1>Welcome to Quantify</h1>
     
-    <!-- DEBUG SECTION -->
-    <div style="background: yellow; padding: 10px; margin: 10px 0;">
-        <h3>DEBUG INFO:</h3>
-        <p>Quizzes: {{ quizzes|length if quizzes else 'None' }}</p>
-        <p>Categories: {{ categories|length if categories else 'None' }}</p>
-        <p>User: {{ current_user.username if current_user.is_authenticated else 'Not logged in' }}</p>
-    </div>
-    
     <!-- QUIZZES SECTION -->
     {% if quizzes %}
         <h2>Available Quizzes ({{ quizzes|length }})</h2>

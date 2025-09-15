@@ -120,9 +120,9 @@ def login():
                 login_user(user)
                 flash("Login successful!", "success")
                 
-                # Redirect to next page if specified, otherwise to quiz index
+                # Redirect to next page if specified, otherwise to quiz homepage
                 next_page = request.args.get('next')
-                return redirect(next_page) if next_page else redirect(url_for("quiz.index"))
+                return redirect(next_page) if next_page else redirect(url_for("quiz.homepage"))
         else:
             # Record failed login attempt and check if now blocked
             is_blocked, status, message = record_login_attempt(username, success=False)
@@ -138,9 +138,9 @@ def login():
                 flash(message, "error")
                 return render_template("login.html", username=username, error=message)
 
-    # If user is already authenticated, redirect to quiz index
+    # If user is already authenticated, redirect to quiz homepage
     if current_user.is_authenticated:
-        return redirect(url_for("quiz.index"))
+        return redirect(url_for("quiz.homepage"))
 
     return render_template("login.html")
 
@@ -158,7 +158,7 @@ def profile_user(username):
     user = Users.query.filter_by(username=username).first()
     if not user:
         flash("User not found!", "danger")
-        return redirect(url_for("quiz.index"))
+        return redirect(url_for("quiz.homepage"))
     
     return render_template("profile.html", user=user, profile_owner=user)
 
@@ -205,9 +205,9 @@ def verify_2fa():
             login_user(user)
             flash("Login successful!", "success")
             
-            # Redirect to next page if specified, otherwise to quiz index
+            # Redirect to next page if specified, otherwise to quiz homepage
             next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for("quiz.index"))
+            return redirect(next_page) if next_page else redirect(url_for("quiz.homepage"))
         else:
             return render_template("verify_2fa.html", username=session.get('2fa_username'), error=message)
     

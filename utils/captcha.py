@@ -99,6 +99,12 @@ class CaptchaValidator:
         Returns:
             bool: True if CAPTCHA is enabled and configured
         """
+        # First check if CAPTCHA is explicitly enabled
+        captcha_enabled = current_app.config.get('RECAPTCHA_ENABLED', False)
+        if not captcha_enabled:
+            return False
+            
+        # Then check if keys are configured
         public_key = current_app.config.get('RECAPTCHA_PUBLIC_KEY')
         private_key = current_app.config.get('RECAPTCHA_PRIVATE_KEY')
         

@@ -7,76 +7,100 @@
 {% endblock %}
 
 {% block body %}
-<div class="index-main">
+<div class="page-content">
     <!-- Error message from direct rendering -->
     {% if error %}
       <div class="alert alert-danger">
+        <i class="fas fa-exclamation-triangle"></i>
         {{ error }}
       </div>
     {% endif %}
 
     <div class="take-quiz-container">
-    <!-- Progress Header -->
-    <div class="quiz-progress-header">
-        <h1>{{ quiz.name }}</h1>
-        <p>Question {{ question_number }} of {{ total_questions }}</p>
-        <p class="progress-detail">{{ answered_count }} answered • {{ total_questions - answered_count }} remaining</p>
-    </div>
-
-    <!-- Question Card -->
-    <div class="question-card">
-        <div class="question-text">
-            {{ question.question_text }}
+        <!-- Simple Progress Header -->
+        <div class="quiz-progress-header">
+            <h1>{{ quiz.name }}</h1>
+            <p>Question {{ question_number }} of {{ total_questions }}</p>
         </div>
-        <form action="{{ url_for('quiz.submit_answer', attempt_id=attempt.id, question_id=question.id) }}" method="post" id="questionForm">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            <div class="options-container">
-                {% for option in options_data %}
-                    <div class="option-item">
-                        <input type="radio" 
-                               name="answer" 
-                               value="{{ loop.index0 }}" 
-                               id="option_{{ loop.index0 }}" 
-                               class="option-input"
-                               onchange="enableSubmit()">
-                        <label for="option_{{ loop.index0 }}" class="answer-option">
-                            <span class="option-letter">{{ 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[loop.index0] }}</span>
-                            {{ option.text if option.text is defined else option }}
-                        </label>
-                    </div>
-                {% endfor %}
-            </div>
-            <div class="submit-section">
-                <button type="submit" class="submit-btn" id="submitBtn" disabled>
-                    Submit Answer
-                </button>
-            </div>
-        </form>
-    </div>
 
-    <!-- Navigation -->
-    <div class="quiz-navigation">
-        <a href="{{ url_for('quiz.quiz_detail', quiz_id=quiz.id) }}" class="nav-btn">
-            ← Back to Quiz Details
-        </a>
+        <!-- Question Card -->
+        <div class="question-card">
+            <div class="question-text">
+                {{ question_number }}. {{ question.question_text }}
+            </div>
+            
+            <!-- Display instructions based on question type -->
+            {% set has_multiple_correct = question.correct_answers|length > 1 %}
+            {% if has_multiple_correct %}
+                <div class="question-instruction multiple-choice">
+                    <i class="fas fa-check-square"></i>
+                    <strong>Multiple answers may be correct</strong> - Select all that apply
+                </div>
+            {% else %}
+                <div class="question-instruction single-choice">
+                    <i class="fas fa-dot-circle"></i>
+                    <strong>Select the best answer</strong> - Only one option is correct
+                </div>
+            {% endif %}
+            
+            <form action="{{ url_for('quiz.submit_answer', attempt_id=attempt.id, question_id=question.id) }}" method="post" id="questionForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <div class="options-container">
+                    {% for option in options_data %}
+                        <div class="option-item">
+                            {% if has_multiple_correct %}
+                                <input type="checkbox" 
+                                       name="answer" 
+                                       value="{{ loop.index0 }}" 
+                                       id="option_{{ loop.index0 }}" 
+                                       class="option-input checkbox-input"
+                                       onchange="enableSubmit()">
+                            {% else %}
+                                <input type="radio" 
+                                       name="answer" 
+                                       value="{{ loop.index0 }}" 
+                                       id="option_{{ loop.index0 }}" 
+                                       class="option-input radio-input"
+                                       onchange="enableSubmit()">
+                            {% endif %}
+                            <label for="option_{{ loop.index0 }}" class="answer-option">
+                                <span class="option-letter">{{ 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[loop.index0] }}</span>
+                                <span class="option-text">{{ option.text }}</span>
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="submit-section">
+                    <button type="submit" class="submit-btn" id="submitBtn" disabled>
+                        Submit Answer
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Navigation -->
+        <div class="quiz-navigation">
+            <a href="{{ url_for('quiz.quiz_detail', quiz_id=quiz.id) }}" class="nav-btn">
+                ← Back to Quiz Details
+            </a>
+        </div>
     </div>
 </div>
 
 <script>
 function enableSubmit() {
     const submitBtn = document.getElementById('submitBtn');
-    const selectedOption = document.querySelector('input[name="answer"]:checked');
-    submitBtn.disabled = !selectedOption;
+    const radioInputs = document.querySelectorAll('input[name="answer"][type="radio"]:checked');
+    const checkboxInputs = document.querySelectorAll('input[name="answer"][type="checkbox"]:checked');
+    
+    // Enable submit if at least one option is selected (radio or checkbox)
+    submitBtn.disabled = !(radioInputs.length > 0 || checkboxInputs.length > 0);
 }
 
-// Auto-submit form when option is selected (optional)
-document.querySelectorAll('input[name="answer"]').forEach(radio => {
-    radio.addEventListener('change', function() {
-        // Optional: Auto-submit after a short delay
-        // setTimeout(() => document.getElementById('questionForm').submit(), 1000);
-    });
+// For checkbox inputs, just enable the submit button
+document.querySelectorAll('input[name="answer"]').forEach(input => {
+    input.addEventListener('change', enableSubmit);
 });
 </script>
-    </div>
-</div>
 {% endblock %}

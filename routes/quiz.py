@@ -14,9 +14,15 @@ quiz_bp = Blueprint('quiz', __name__)
 
 
 @quiz_bp.route('/')
-@quiz_bp.route('/index')
 def index():
-    """Main page displaying all available quiz templates"""
+    """Landing page with information about the platform"""
+    return render_template('index.html')
+
+
+@quiz_bp.route('/homepage')
+@quiz_bp.route('/dashboard')
+def homepage():
+    """Main quiz dashboard displaying all available quiz templates"""
     quizzes = Quiz.query.filter_by(is_archive=False).order_by(Quiz.created_at.desc()).all()
     users = Users.query.limit(10).all()  # Show recent users for profile viewing
     categories = Category.query.all()  # Get all categories for filter
@@ -27,12 +33,12 @@ def index():
         # Count available questions in selected categories
         if quiz.source_categories:
             category_ids = [cat.id for cat in quiz.source_categories]
-            available_questions = Question.query.filter(Question.category_id.in_(category_ids)).count()
+            available_questions = Question.query.filter(Question.category_id.in_(category_ids)).order_by(Question.id).count()
             quiz.has_enough_questions = available_questions >= quiz.number_of_questions
         else:
             quiz.has_enough_questions = False
     
-    return render_template('index.html', quizzes=quizzes, users=users, categories=categories)
+    return render_template('homepage.html', quizzes=quizzes, users=users, categories=categories)
 
 
 @quiz_bp.route('/quiz/<int:quiz_id>')
@@ -44,7 +50,7 @@ def quiz_detail(quiz_id):
     # Check if quiz has enough questions
     if quiz.source_categories:
         category_ids = [cat.id for cat in quiz.source_categories]
-        available_questions = Question.query.filter(Question.category_id.in_(category_ids)).count()
+        available_questions = Question.query.filter(Question.category_id.in_(category_ids)).order_by(Question.id).count()
         if available_questions < quiz.number_of_questions:
             flash(f"This quiz requires {quiz.number_of_questions} questions but only {available_questions} are available.", "warning")
             return redirect(url_for('quiz.index'))
@@ -68,10 +74,14 @@ def quiz_detail(quiz_id):
     # Get error from URL parameter
     error = request.args.get('error')
     
+    # Get questions count for the quiz information display
+    questions_count = Question.query.filter_by(category_id=quiz.source_categories[0].id).count() if quiz.source_categories else quiz.number_of_questions
+    
     return render_template('quiz.html', 
                          quiz=quiz, 
                          attempts=attempts,
                          ongoing_attempt=ongoing_attempt,
+                         questions_count=questions_count,
                          error=error)
 
 
@@ -95,7 +105,7 @@ def start_quiz(quiz_id):
     # Verify quiz has enough questions
     if quiz.source_categories:
         category_ids = [cat.id for cat in quiz.source_categories]
-        available_questions = Question.query.filter(Question.category_id.in_(category_ids)).all()
+        available_questions = Question.query.filter(Question.category_id.in_(category_ids)).order_by(Question.id).all()
         if len(available_questions) < quiz.number_of_questions:
             return redirect(url_for('quiz.quiz_detail', quiz_id=quiz_id, 
                           error="Not enough questions available for this quiz."))
@@ -113,8 +123,8 @@ def start_quiz(quiz_id):
         db.session.add(attempt)
         db.session.flush()  # Get the attempt ID
         
-        # Select random questions from the available pool
-        selected_questions = random.sample(available_questions, quiz.number_of_questions)
+        # Select first N questions from available pool (simple, consistent approach)
+        selected_questions = available_questions[:quiz.number_of_questions]
         
         # Create attempt_questions associations
         for i, question in enumerate(selected_questions):

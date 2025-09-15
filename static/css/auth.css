@@ -108,9 +108,67 @@
   margin: 0 auto !important;
 }
 
+@media (max-width: 768px) {
+  .auth-container {
+    margin: 2rem auto;
+    padding: 1.5rem;
+    max-width: 90%;
+  }
+  
+  .auth-form input {
+    padding: 0.8rem;
+    font-size: 1rem;
+  }
+  
+  .otp-input {
+    font-size: 1.3rem !important;
+    letter-spacing: 0.3rem !important;
+    padding: 0.8rem !important;
+  }
+  
+  .info-message {
+    padding: 0.8rem;
+    font-size: 0.9rem;
+  }
+}
+
 @media (max-width: 480px) {
+  .auth-container {
+    margin: 1rem auto;
+    padding: 1rem;
+    max-width: 95%;
+    border-radius: 16px;
+  }
+  
+  .auth-container h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .auth-form input {
+    padding: 0.7rem;
+    font-size: 0.95rem;
+    margin-bottom: 0.8rem;
+  }
+  
   .g-recaptcha {
     transform: scale(0.9) !important;
+  }
+  
+  .otp-input {
+    font-size: 1.2rem !important;
+    letter-spacing: 0.2rem !important;
+    padding: 0.7rem !important;
+  }
+  
+  .info-message {
+    padding: 0.7rem;
+    font-size: 0.85rem;
+  }
+  
+  .btn {
+    padding: 0.7rem;
+    font-size: 0.9rem;
   }
 }
 
@@ -182,4 +240,17 @@
 .forgot-password-link:hover {
   text-decoration: underline;
   color: var(--hover);
+}
+
+.secondary-btn {
+  background: transparent !important;
+  color: var(--text) !important;
+  border: 2px solid var(--border) !important;
+  margin-top: 0.5rem !important;
+}
+
+.secondary-btn:hover {
+  background: var(--glass-hover) !important;
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
 }

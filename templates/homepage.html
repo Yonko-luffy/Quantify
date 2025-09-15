@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Quantify{% endblock %}
+
+
+{% block body %}
+<div class="centered-content">
+        <!-- Welcome Section -->
+        {% if current_user.is_authenticated %}
+            <h1 class="quiz-title">Welcome back, {{ current_user.username | title }}!</h1>
+            <p class="subtitle">Ready to challenge yourself with some quizzes?</p>
+        {% else %}
+            <h1 class="quiz-title">Welcome to Quantify</h1>
+            <p class="subtitle">Test your knowledge with interactive quizzes</p>
+            <div class="auth-buttons">
+                <a href="{{ url_for('auth.login') }}" class="login-link">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </a>
+                <a href="{{ url_for('auth.register') }}" class="btn">
+                    <i class="fas fa-user-plus"></i> Register
+                </a>
+            </div>
+        {% endif %}
+
+        <!-- Quick Actions for Authenticated Users -->
+        {% if current_user.is_authenticated %}
+            <div class="glass-card" style="margin: 2rem 0;">
+                <h3><i class="fas fa-tachometer-alt"></i> Quick Actions</h3>
+                <div class="action-buttons">
+                    <a href="{{ url_for('auth.profile') }}" class="btn">
+                        <i class="fas fa-user"></i> View Profile
+                    </a>
+                    <a href="{{ url_for('quiz.my_quizzes') }}" class="btn">
+                        <i class="fas fa-clipboard-list"></i> My Quiz Results
+                    </a>
+                    {% if current_user.is_admin() %}
+                        <a href="{{ url_for('admin.admin_panel') }}" class="btn btn-warning">
+                            <i class="fas fa-cogs"></i> Admin Panel
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Available Quizzes Section -->
+        <div class="quiz-section">
+            <h2 class="quiz-title">Available Quizzes</h2>
+            {% if quizzes %}
+                <div class="quiz-grid">
+                    {% for quiz in quizzes %}
+                        <div class="quiz-card">
+                            <h3>{{ quiz.name }}</h3>
+                            <p class="quiz-info">Created by {{ quiz.creator.username if quiz.creator else 'Admin' }}</p>
+                            <a class="quiz-btn" href="{{ url_for('quiz.quiz_detail', quiz_id=quiz.id) }}">Start Quiz</a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-clipboard-list fa-4x"></i>
+                    <h3>No Quizzes Available</h3>
+                    <p>There are no quizzes available at the moment. Check back later!</p>
+                    {% if current_user.is_authenticated and current_user.is_admin() %}
+                        <a href="{{ url_for('admin.create_quiz') }}" class="btn">
+                            <i class="fas fa-plus"></i> Create First Quiz
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Statistics Section -->
+        {% if current_user.is_authenticated and stats %}
+            <div class="glass-card" style="margin: 3rem 0;">
+                <h3><i class="fas fa-chart-bar"></i> Your Statistics</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-number text-primary">{{ stats.total_attempts }}</span>
+                        <span class="stat-label">Total Attempts</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number text-success">{{ stats.completed_quizzes }}</span>
+                        <span class="stat-label">Completed Quizzes</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number text-info">{{ "%.1f"|format(stats.average_score) }}%</span>
+                        <span class="stat-label">Average Score</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number text-warning">{{ "%.1f"|format(stats.best_score) }}%</span>
+                        <span class="stat-label">Best Score</span>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+<script>
+// Filter quizzes by category
+function filterQuizzes() {
+    const categoryFilter = document.getElementById('categoryFilter');
+    const selectedCategory = categoryFilter.value;
+    const quizCards = document.querySelectorAll('.quiz-card');
+    
+    quizCards.forEach(card => {
+        const categories = card.dataset.categories.split(',');
+        if (!selectedCategory || categories.includes(selectedCategory)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+</script>
+{% endblock %}

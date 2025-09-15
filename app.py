@@ -69,44 +69,6 @@ def create_app(config_name='default'):
     # Database initialization
     with app.app_context():
         db.create_all()
-        
-        # Auto-create sample quiz data if none exists
-        from models import Category, Question, Quiz
-        try:
-            # Check specifically for sample quiz data (not all quiz data)
-            sample_categories = [
-                "Numerical Ability", "Logical Reasoning", "Data Interpretation", 
-                "Analytical Reasoning", "Mathematical Operations"
-            ]
-            
-            existing_sample_categories = Category.query.filter(
-                Category.name.in_(sample_categories)
-            ).count()
-            
-            sample_quiz_names = [
-                "Numerical Aptitude Foundation", "Logical Reasoning Mastery", 
-                "Complete Quantitative Aptitude"
-            ]
-            
-            existing_sample_quizzes = Quiz.query.filter(
-                Quiz.name.in_(sample_quiz_names)
-            ).count()
-            
-            # Only create sample data if we don't have the core sample quizzes
-            sample_data_exists = (existing_sample_categories >= 3 and existing_sample_quizzes >= 2)
-            
-            total_categories = Category.query.count()
-            total_questions = Question.query.count()
-            total_quizzes = Quiz.query.count()
-            
-            if not sample_data_exists:
-                print("📝 No sample quiz data found. Creating sample quantitative and reasoning quizzes...")
-                from create_quant_reasoning_data import create_quant_reasoning_data
-                create_quant_reasoning_data(force_recreate=False)
-            else:
-                print(f"✅ Sample quiz data exists. Total: {total_categories} categories, {total_questions} questions, {total_quizzes} quizzes")
-        except Exception as e:
-            print(f"Note: Could not check/create sample data: {e}")
     
     return app
 
@@ -125,8 +87,12 @@ app = create_app()
 # when this script is executed directly (e.g., by running `python app.py`).
 # It won't run if this file is imported by another script.
 if __name__ == "__main__":
+    # Get configuration from environment variables for production readiness
+    debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    port = int(os.environ.get('PORT', 5002))
+    host = os.environ.get('HOST', '127.0.0.1')
+    
     # This starts the built-in Flask development server.
-    # 'debug=True' is super helpful for development because it enables an interactive
-    # debugger in the browser and automatically reloads the server when you change the code.
-    # This should be set to 'False' in a production environment!
-    app.run(debug=True, port=5002, host='127.0.0.1')
+    # Debug mode is controlled by environment variable for production safety
+    # In production, Gunicorn will handle serving the app instead
+    app.run(debug=debug_mode, port=port, host=host)
