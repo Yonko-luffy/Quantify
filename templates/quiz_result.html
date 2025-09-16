@@ -59,10 +59,7 @@
         {% for item in detailed_results %}
             <div class="question-item {{ 'question-correct' if item.result.is_correct else 'question-incorrect' }}">
                 <div class="question-header">
-                    <span class="question-number">Question {{ loop.index }}</span>
-                    <span class="question-result-icon">
-                        {{ '✅' if item.result.is_correct else '❌' }}
-                    </span>
+                    <span class="question-number">Question {{ loop.index }} {{ '✅' if item.result.is_correct else '❌' }}</span>
                 </div>
                 
                 <div class="question-text">{{ item.question.question_text }}</div>
@@ -139,5 +136,19 @@ function toggleExplanation(questionIndex) {
         button.classList.remove('active');
     }
 }
+
+// Notify parent window to update stats (if opened from homepage)
+function notifyStatsUpdate() {
+    if (window.opener && typeof window.opener.updateUserStats === 'function') {
+        window.opener.updateUserStats();
+    }
+    // Also notify through localStorage for same-tab navigation
+    localStorage.setItem('statsNeedUpdate', Date.now().toString());
+}
+
+// Call on page load to update stats
+document.addEventListener('DOMContentLoaded', function() {
+    notifyStatsUpdate();
+});
 </script>
 {% endblock %}

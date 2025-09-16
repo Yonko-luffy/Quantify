@@ -730,7 +730,8 @@ HOMEPAGE ENHANCED STYLES
 .stat-card {
   background: var(--glass);
   backdrop-filter: blur(15px);
-  border: 1px solid var(--border);
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
   border-radius: 15px;
   padding: 1.5rem;
   display: flex;
@@ -1663,7 +1664,7 @@ RESPONSIVE DESIGN
   }
   
   .quiz-title {
-    font-size: 1.2rem;
+    font-size: 3rem;
   }
   
   .quiz-description {

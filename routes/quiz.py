@@ -471,9 +471,21 @@ def my_quizzes():
             }
         completed_by_quiz[quiz_id]['attempts'].append(attempt)
     
+    # Calculate statistics
+    stats = {
+        'total_attempts': len(ongoing_attempts) + len(completed_attempts),
+        'in_progress': len(ongoing_attempts),
+        'unique_quizzes': len(completed_by_quiz)
+    }
+    
+    # Debug: Check what we're passing to template
+    print(f"DEBUG: User {current_user.username} - Total: {stats['total_attempts']}, In Progress: {stats['in_progress']}, Unique: {stats['unique_quizzes']}")
+    
     return render_template('my_quizzes.html', 
                          ongoing_attempts=ongoing_attempts,
-                         completed_by_quiz=completed_by_quiz)
+                         ongoing=ongoing_attempts,  # Keep for backward compatibility
+                         completed_by_quiz=completed_by_quiz,
+                         stats=stats)
 
 
 # ================================

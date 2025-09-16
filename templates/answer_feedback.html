@@ -62,11 +62,7 @@
         <form action="{{ url_for('quiz.next_question', attempt_id=attempt.id) }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <button type="submit" class="quiz-btn continue-btn">
-                {% if is_last_question %}
-                    Finish & View Results →
-                {% else %}
-                    Continue to Next Question →
-                {% endif %}
+                    Next →
             </button>
         </form>
     </div>

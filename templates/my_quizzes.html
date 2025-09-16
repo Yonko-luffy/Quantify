@@ -13,21 +13,18 @@
         <!-- Statistics Summary -->
         <div class="stats-summary">
             <div class="quiz-card stat-card">
-                <div class="stat-number">
-                    {% set total_attempts = 0 %}
-                    {% for quiz_id, quiz_data in completed_by_quiz.items() %}
-                        {% set total_attempts = total_attempts + quiz_data.attempts|length %}
-                    {% endfor %}
-                    {{ total_attempts }}
-                </div>
+                <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                <div class="stat-number">{{ stats.total_attempts }}</div>
                 <div class="stat-label">Total Attempts</div>
             </div>
             <div class="quiz-card stat-card">
-                <div class="stat-number">{{ ongoing|length }}</div>
+                <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                <div class="stat-number">{{ stats.in_progress }}</div>
                 <div class="stat-label">In Progress</div>
             </div>
             <div class="quiz-card stat-card">
-                <div class="stat-number">{{ completed_by_quiz|length }}</div>
+                <div class="stat-icon"><i class="fas fa-trophy"></i></div>
+                <div class="stat-number">{{ stats.unique_quizzes }}</div>
                 <div class="stat-label">Unique Quizzes</div>
             </div>
         </div>
