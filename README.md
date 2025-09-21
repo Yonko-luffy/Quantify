@@ -1,5 +1,6 @@
-# 🎯 Quantify
-> A modern, feature-rich Flask web application for creating and managing educational quizzes
+<p align="center">
+  <img src="static/images/Quantify card.png" alt="Quantify card"/>
+</p>
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)
 [![Flask](https://img.shields.io/badge/Flask-3.0.0-green.svg)](https://flask.palletsprojects.com/)
