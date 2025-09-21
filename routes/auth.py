@@ -4,6 +4,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from models import db, Users, OTPCode
+from utils.password_hash import secure_hash_password, verify_password
 from utils.captcha import CaptchaValidator
 from utils.email import email_service
 from utils.rate_limiter import rate_limit_check, record_login_attempt
@@ -55,8 +56,8 @@ def register():
 
         # Success - flash message and redirect (PRG pattern)
         try:
-            # Hash password and create user
-            hashed_password = generate_password_hash(password, method="pbkdf2:sha256")
+            # Hash password and create user using secure method (Argon2 if available)
+            hashed_password = secure_hash_password(password)
             new_user = Users(email=email, username=username, password=hashed_password, role="user")
             db.session.add(new_user)
             db.session.commit()
@@ -97,7 +98,7 @@ def login():
         # Check user credentials
         user = Users.query.filter_by(username=username).first()
 
-        if user and check_password_hash(user.password, password):
+        if user and verify_password(user.password, password):
             # Record successful login attempt
             record_login_attempt(username, success=True)
             
@@ -302,7 +303,7 @@ def reset_password():
         
         if user:
             try:
-                user.password = generate_password_hash(password, method="pbkdf2:sha256")
+                user.password = secure_hash_password(password)
                 db.session.commit()
                 
                 # Clear session data

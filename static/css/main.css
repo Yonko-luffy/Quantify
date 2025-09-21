@@ -1672,12 +1672,14 @@ RESPONSIVE DESIGN
   }
   
   .dropdown-menu {
-    position: fixed;
-    top: 60px;
-    right: 0.5rem;
-    left: 0.5rem;
-    width: auto;
-    max-width: none;
+      position: fixed;
+      background: rgb(216 234 255);
+      top: 70px;
+      right: 0.5rem;
+      left: 13.5rem;
+      width: auto;
+      max-width: 20px;
+      border: 2px solid rgba(0, 0, 0, 0.258);
   }
 }
 

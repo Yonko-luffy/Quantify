@@ -67,7 +67,7 @@ def edit_user(user_id):
 @admin_bp.route('/manage-users/<int:user_id>/delete', methods=["POST"])
 @admin_required
 def delete_user(user_id):
-    """Delete a user"""
+    """Delete a user and all associated data"""
     user = Users.query.get(user_id)
     if user:
         # Prevent deleting yourself
@@ -75,15 +75,29 @@ def delete_user(user_id):
             return redirect(url_for("admin.manage_users", error="You cannot delete your own account."))
         
         try:
+            # Import here to avoid circular imports
+            from models.quiz import Quiz, QuizAttempt, QuizResult
+            
+            # Delete all user's quiz attempts and results first
+            QuizAttempt.query.filter_by(user_id=user.id).delete()
+            QuizResult.query.filter_by(user_id=user.id).delete()
+            
+            # Delete quizzes created by this user
+            Quiz.query.filter_by(created_by=user.id).delete()
+            
+            # Finally delete the user
             db.session.delete(user)
             db.session.commit()
-            flash("User deleted successfully.", "success")
+            
+            flash(f"User '{user.username}' and all associated data deleted successfully.", "success")
             return redirect(url_for("admin.manage_users"))
         except Exception as e:
             db.session.rollback()
-            return redirect(url_for("admin.manage_users", error="Failed to delete user."))
+            flash(f"Failed to delete user: {str(e)}", "error")
+            return redirect(url_for("admin.manage_users"))
     
-    return redirect(url_for("admin.manage_users", error="User not found."))
+    flash("User not found.", "error")
+    return redirect(url_for("admin.manage_users"))
 
 
 # ================================

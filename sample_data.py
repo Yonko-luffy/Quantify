@@ -80,8 +80,8 @@ def create_clean_assessment_data(force_recreate=False):
         print("👤 Creating new admin user...")
         admin = Users(
             username="admin",
-            email="admin@quantify.com",
-            password=generate_password_hash("admin123"),  # Hash the password for security
+            email="quantify.verify@gmail.com",
+            password=generate_password_hash("admin123", method="argon2"),  # Hash the password for security
             role="admin"
         )
         db.session.add(admin)
